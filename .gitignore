@@ -1,0 +1,36 @@
+# Các thư viện phụ thuộc
+/vendor
+/node_modules
+
+# Cấu hình môi trường và bảo mật
+.env
+.env.backup
+.env.production
+
+# Các tệp tạm của Laravel
+/bootstrap/cache/*.php
+/storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+!/storage/framework/.gitignore
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/logs/.gitignore
+
+# Các tệp IDE và hệ thống
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Public Assets build
+/public/hot
+/public/storage
+/public/build

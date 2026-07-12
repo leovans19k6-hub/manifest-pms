@@ -2,42 +2,118 @@
 
 namespace Domain\Property\Application\Validation;
 
-use Domain\Foundation\Support\CurrentOrganization;
 use Domain\Property\Application\DTO\PropertyData;
 use Domain\Property\Enums\PropertyStatus;
 use Domain\Property\Enums\PropertyType;
 use Domain\Property\Models\Property;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class PropertyValidator
 {
-    public function __construct(private CurrentOrganization $organization) {}
-
     public function validate(array $input, ?Property $property = null): PropertyData
     {
-        $organizationId = $this->organization->id() ?? throw ValidationException::withMessages([
-            'organization' => 'Current organization context is required.',
-        ]);
+        $validated = Validator::make(
+            $input,
+            $property === null
+                ? $this->createRules()
+                : $this->updateRules($property),
+        )->validate();
 
-        $validated = Validator::make($input, [
-            'code' => ['required', 'string', 'max:50', Rule::unique('properties', 'code')->where('organization_id', $organizationId)->ignore($property?->id)],
-            'name' => ['required', 'string', 'max:150'],
-            'slug' => ['required', 'string', 'max:180', Rule::unique('properties', 'slug')->where('organization_id', $organizationId)->ignore($property?->id)],
-            'type' => ['required', Rule::enum(PropertyType::class)],
-            'status' => ['required', Rule::enum(PropertyStatus::class)],
-            'timezone' => ['required', 'timezone'],
-            'currency' => ['required', 'string', 'size:3', 'uppercase'],
-            'address' => ['nullable', 'string'],
-            'metadata' => ['sometimes', 'array'],
-        ])->validate();
+        return PropertyData::fromArray($validated);
+    }
 
-        return new PropertyData(
-            code: $validated['code'], name: $validated['name'], slug: $validated['slug'],
-            type: PropertyType::from($validated['type']), status: PropertyStatus::from($validated['status']),
-            timezone: $validated['timezone'], currency: $validated['currency'],
-            address: $validated['address'] ?? null, metadata: $validated['metadata'] ?? [],
-        );
+    private function createRules(): array
+    {
+        return [
+            'code' => [
+                'required',
+                'string',
+                'max:50',
+            ],
+            'name' => [
+                'required',
+                'string',
+                'max:150',
+            ],
+            'slug' => [
+                'required',
+                'string',
+                'max:180',
+            ],
+            'type' => [
+                'sometimes',
+                Rule::enum(PropertyType::class),
+            ],
+            'status' => [
+                'sometimes',
+                Rule::enum(PropertyStatus::class),
+            ],
+            'timezone' => [
+                'sometimes',
+                'timezone',
+            ],
+            'currency' => [
+                'sometimes',
+                'string',
+                'size:3',
+            ],
+            'address' => [
+                'nullable',
+                'string',
+            ],
+            'metadata' => [
+                'nullable',
+                'array',
+            ],
+        ];
+    }
+
+    private function updateRules(Property $property): array
+    {
+        return [
+            'code' => [
+                'sometimes',
+                'string',
+                'max:50',
+            ],
+            'name' => [
+                'sometimes',
+                'string',
+                'max:150',
+            ],
+            'slug' => [
+                'sometimes',
+                'string',
+                'max:180',
+            ],
+            'type' => [
+                'sometimes',
+                Rule::enum(PropertyType::class),
+            ],
+            'status' => [
+                'sometimes',
+                Rule::enum(PropertyStatus::class),
+            ],
+            'timezone' => [
+                'sometimes',
+                'timezone',
+            ],
+            'currency' => [
+                'sometimes',
+                'string',
+                'size:3',
+            ],
+            'address' => [
+                'sometimes',
+                'nullable',
+                'string',
+            ],
+            'metadata' => [
+                'sometimes',
+                'nullable',
+                'array',
+            ],
+        ];
     }
 }

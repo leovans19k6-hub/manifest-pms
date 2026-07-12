@@ -5,6 +5,7 @@ namespace Domain\Foundation\Http\Middleware;
 use Closure;
 use Domain\Foundation\Models\User;
 use Domain\Foundation\Services\OrganizationContextService;
+use Domain\Foundation\Support\AuthorizationResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,10 +15,23 @@ class RequireOrganization
 
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
-        abort_unless($user instanceof User, 401);
-        abort_if($this->organizations->resolveFor($user) === null, 403, 'No active organization membership.');
+        $this->authorize($request)->authorize();
 
         return $next($request);
+    }
+
+    private function authorize(Request $request): AuthorizationResponse
+    {
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            return AuthorizationResponse::unauthenticated();
+        }
+
+        if ($this->organizations->resolveFor($user) === null) {
+            return AuthorizationResponse::missingOrganization();
+        }
+
+        return AuthorizationResponse::allow();
     }
 }

@@ -18,6 +18,10 @@ class RbacSeeder extends Seeder
             ['code' => 'foundation.memberships.view', 'name' => 'View Memberships', 'group' => PermissionGroup::Foundation],
             ['code' => 'foundation.roles.view', 'name' => 'View Roles', 'group' => PermissionGroup::Foundation],
             ['code' => 'foundation.roles.manage', 'name' => 'Manage Roles', 'group' => PermissionGroup::Foundation],
+            ['code' => 'property.properties.view', 'name' => 'View Properties', 'group' => PermissionGroup::Property],
+            ['code' => 'property.properties.create', 'name' => 'Create Properties', 'group' => PermissionGroup::Property],
+            ['code' => 'property.properties.update', 'name' => 'Update Properties', 'group' => PermissionGroup::Property],
+            ['code' => 'property.properties.archive', 'name' => 'Archive Properties', 'group' => PermissionGroup::Property],
         ])->map(fn (array $data): Permission => Permission::query()->updateOrCreate(
             ['code' => $data['code']],
             $data,

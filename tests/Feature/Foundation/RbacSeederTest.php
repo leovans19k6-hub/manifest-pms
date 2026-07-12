@@ -21,7 +21,11 @@ class RbacSeederTest extends TestCase
 
         $this->assertTrue($role->is_system);
         $this->assertNull($role->organization_id);
-        $this->assertSame(4, Permission::query()->count());
-        $this->assertSame(4, $role->permissions()->count());
+        $permissionCount = Permission::query()->count();
+        $this->assertSame(8, $permissionCount);
+        $this->assertSame(
+            $permissionCount,
+            $role->permissions()->count(),
+        );
     }
 }

@@ -5,6 +5,7 @@ namespace Domain\Foundation\Services;
 use Domain\Foundation\Enums\OrganizationMemberStatus;
 use Domain\Foundation\Enums\RoleStatus;
 use Domain\Foundation\Models\OrganizationUser;
+use Domain\Foundation\Support\CurrentMembership;
 use Domain\Foundation\Support\CurrentOrganization;
 
 class AuthorizationService
@@ -13,8 +14,16 @@ class AuthorizationService
 
     public function __construct(
         private CurrentOrganization $currentOrganization,
+        private CurrentMembership $currentMembership,
         private PermissionResolver $resolver,
     ) {}
+
+    public function canCurrent(string $permission): bool
+    {
+        $membership = $this->currentMembership->get();
+
+        return $membership !== null && $this->can($membership, $permission);
+    }
 
     public function can(OrganizationUser $membership, string $permission): bool
     {

@@ -22,6 +22,10 @@ class RbacSeeder extends Seeder
             ['code' => 'property.properties.create', 'name' => 'Create Properties', 'group' => PermissionGroup::Property],
             ['code' => 'property.properties.update', 'name' => 'Update Properties', 'group' => PermissionGroup::Property],
             ['code' => 'property.properties.archive', 'name' => 'Archive Properties', 'group' => PermissionGroup::Property],
+            ['code' => 'property.media.view', 'name' => 'View Property Media', 'group' => PermissionGroup::Property],
+            ['code' => 'property.media.create', 'name' => 'Create Property Media', 'group' => PermissionGroup::Property],
+            ['code' => 'property.documents.view', 'name' => 'View Property Documents', 'group' => PermissionGroup::Property],
+            ['code' => 'property.documents.create', 'name' => 'Create Property Documents', 'group' => PermissionGroup::Property],
         ])->map(fn (array $data): Permission => Permission::query()->updateOrCreate(
             ['code' => $data['code']],
             $data,

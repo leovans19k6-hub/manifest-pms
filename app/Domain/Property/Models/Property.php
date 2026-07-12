@@ -10,6 +10,7 @@ use Domain\Shared\Traits\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Property extends Model
@@ -33,6 +34,16 @@ class Property extends Model
     protected static function newFactory(): PropertyFactory
     {
         return PropertyFactory::new();
+    }
+
+    public function assets(): HasMany
+    {
+        return $this->hasMany(PropertyAsset::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(PropertyDocument::class);
     }
 
     public function organization(): BelongsTo

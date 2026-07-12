@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Domain\Foundation\Support\CurrentOrganization;
 use Domain\Foundation\Support\RequestContext;
+use Domain\Property\Contracts\PropertyStorage;
 use Illuminate\Support\ServiceProvider;
+use Infrastructure\Storage\LaravelPropertyStorage;
 
 class DomainServiceProvider extends ServiceProvider
 {
@@ -12,7 +14,7 @@ class DomainServiceProvider extends ServiceProvider
     {
         $this->app->scoped(CurrentOrganization::class, fn () => new CurrentOrganization);
         $this->app->scoped(RequestContext::class, fn () => new RequestContext);
-        // Register domain contracts and application services here.
+        $this->app->bind(PropertyStorage::class, LaravelPropertyStorage::class);
     }
 
     public function boot(): void

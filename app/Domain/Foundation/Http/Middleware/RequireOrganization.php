@@ -4,6 +4,7 @@ namespace Domain\Foundation\Http\Middleware;
 
 use Closure;
 use Domain\Foundation\Models\User;
+use Domain\Foundation\Services\MembershipResolver;
 use Domain\Foundation\Services\OrganizationContextService;
 use Domain\Foundation\Support\AuthorizationResponse;
 use Illuminate\Http\Request;
@@ -11,7 +12,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RequireOrganization
 {
-    public function __construct(private OrganizationContextService $organizations) {}
+    public function __construct(
+        private OrganizationContextService $organizations,
+        private MembershipResolver $memberships,
+    ) {}
 
     public function handle(Request $request, Closure $next): Response
     {
@@ -29,6 +33,12 @@ class RequireOrganization
         }
 
         if ($this->organizations->resolveFor($user) === null) {
+            $this->memberships->clear();
+
+            return AuthorizationResponse::missingOrganization();
+        }
+
+        if ($this->memberships->resolve($user) === null) {
             return AuthorizationResponse::missingOrganization();
         }
 

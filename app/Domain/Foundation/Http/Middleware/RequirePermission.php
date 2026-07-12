@@ -3,10 +3,11 @@
 namespace Domain\Foundation\Http\Middleware;
 
 use Closure;
-use Domain\Foundation\Models\OrganizationUser;
 use Domain\Foundation\Models\User;
 use Domain\Foundation\Services\AuthorizationService;
+use Domain\Foundation\Services\MembershipResolver;
 use Domain\Foundation\Support\AuthorizationResponse;
+use Domain\Foundation\Support\CurrentMembership;
 use Domain\Foundation\Support\CurrentOrganization;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,8 @@ class RequirePermission
 {
     public function __construct(
         private CurrentOrganization $organization,
+        private CurrentMembership $membership,
+        private MembershipResolver $memberships,
         private AuthorizationService $authorization,
     ) {}
 
@@ -33,18 +36,15 @@ class RequirePermission
             return AuthorizationResponse::unauthenticated();
         }
 
-        $organizationId = $this->organization->id();
+        if ($this->organization->id() === null) {
+            $this->memberships->clear();
 
-        if ($organizationId === null) {
             return AuthorizationResponse::missingOrganization();
         }
 
-        $membership = OrganizationUser::query()
-            ->where('user_id', $user->getAuthIdentifier())
-            ->where('organization_id', $organizationId)
-            ->first();
+        $membership = $this->membership->get() ?? $this->memberships->resolve($user);
 
-        if ($membership === null || ! $this->authorization->can($membership, $permission)) {
+        if ($membership === null || ! $this->authorization->canCurrent($permission)) {
             return AuthorizationResponse::missingPermission($permission);
         }
 

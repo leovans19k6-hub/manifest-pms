@@ -7,6 +7,7 @@ use Domain\Foundation\Events\OrganizationSwitched;
 use Domain\Foundation\Exceptions\OrganizationContextException;
 use Domain\Foundation\Models\Organization;
 use Domain\Foundation\Models\User;
+use Domain\Foundation\Support\CurrentMembership;
 use Domain\Foundation\Support\CurrentOrganization;
 use Illuminate\Contracts\Session\Session;
 
@@ -16,6 +17,7 @@ class OrganizationContextService
 
     public function __construct(
         private CurrentOrganization $currentOrganization,
+        private CurrentMembership $currentMembership,
         private Session $session,
     ) {}
 
@@ -75,6 +77,7 @@ class OrganizationContextService
     {
         $this->session->forget(self::SESSION_KEY);
         $this->currentOrganization->clear();
+        $this->currentMembership->clear();
     }
 
     private function activeOrganizationFor(User $user, string $organizationId): ?Organization
@@ -87,6 +90,7 @@ class OrganizationContextService
 
     private function activate(Organization $organization): Organization
     {
+        $this->currentMembership->clear();
         $this->session->put(self::SESSION_KEY, $organization->id);
         $this->currentOrganization->set($organization);
 

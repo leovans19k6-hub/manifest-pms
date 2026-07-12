@@ -4,7 +4,9 @@ namespace Domain\Foundation\Http\Middleware;
 
 use Closure;
 use Domain\Foundation\Models\OrganizationUser;
+use Domain\Foundation\Models\User;
 use Domain\Foundation\Services\AuthorizationService;
+use Domain\Foundation\Support\AuthorizationResponse;
 use Domain\Foundation\Support\CurrentOrganization;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,16 +20,34 @@ class RequirePermission
 
     public function handle(Request $request, Closure $next, string $permission): Response
     {
-        abort_unless($request->user(), 401);
-        abort_unless($this->organization->id(), 403);
-
-        $membership = OrganizationUser::query()
-            ->where('user_id', $request->user()->getAuthIdentifier())
-            ->where('organization_id', $this->organization->id())
-            ->first();
-
-        abort_unless($membership && $this->authorization->can($membership, $permission), 403);
+        $this->authorize($request, $permission)->authorize();
 
         return $next($request);
+    }
+
+    private function authorize(Request $request, string $permission): AuthorizationResponse
+    {
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            return AuthorizationResponse::unauthenticated();
+        }
+
+        $organizationId = $this->organization->id();
+
+        if ($organizationId === null) {
+            return AuthorizationResponse::missingOrganization();
+        }
+
+        $membership = OrganizationUser::query()
+            ->where('user_id', $user->getAuthIdentifier())
+            ->where('organization_id', $organizationId)
+            ->first();
+
+        if ($membership === null || ! $this->authorization->can($membership, $permission)) {
+            return AuthorizationResponse::missingPermission($permission);
+        }
+
+        return AuthorizationResponse::allow();
     }
 }

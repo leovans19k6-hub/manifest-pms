@@ -40,10 +40,20 @@ class ArchitectureFoundationTest extends TestCase
         $this->assertTrue(trait_exists(HasUlids::class));
     }
 
-    public function test_business_modules_are_not_prematurely_implemented(): void
+    public function test_only_approved_domain_modules_are_present(): void
     {
-        foreach (['Foundation', 'Property', 'Inventory', 'Reservation', 'Guest', 'Finance', 'Operation', 'Reporting', 'System'] as $module) {
-            $this->assertDirectoryDoesNotExist(base_path("app/Domain/{$module}"));
-        }
+        $domainPath = base_path('app/Domain');
+
+        $directories = collect(scandir($domainPath))
+            ->reject(fn (string $directory): bool => in_array($directory, ['.', '..'], true))
+            ->filter(fn (string $directory): bool => is_dir($domainPath.DIRECTORY_SEPARATOR.$directory))
+            ->sort()
+            ->values()
+            ->all();
+
+        $this->assertSame([
+            'Foundation',
+            'Shared',
+        ], $directories);
     }
 }

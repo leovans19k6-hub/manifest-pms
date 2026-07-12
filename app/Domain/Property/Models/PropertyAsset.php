@@ -11,11 +11,11 @@ class PropertyAsset extends Model
 {
     use HasUlids;
 
-    protected $fillable = ['organization_id', 'property_id', 'kind', 'disk', 'storage_key', 'original_name', 'mime_type', 'size_bytes', 'checksum', 'metadata'];
+    protected $fillable = ['organization_id', 'property_id', 'kind', 'position', 'disk', 'storage_key', 'original_name', 'mime_type', 'size_bytes', 'checksum', 'metadata'];
 
     protected function casts(): array
     {
-        return ['kind' => PropertyAssetKind::class, 'metadata' => 'array'];
+        return ['kind' => PropertyAssetKind::class, 'position' => 'integer', 'metadata' => 'array'];
     }
 
     public function property(): BelongsTo

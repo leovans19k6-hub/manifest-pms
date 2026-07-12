@@ -19,9 +19,15 @@ class RequireOrganization
 
     public function handle(Request $request, Closure $next): Response
     {
-        $this->authorize($request)->authorize();
+        $this->organizations->clear();
 
-        return $next($request);
+        try {
+            $this->authorize($request)->authorize();
+
+            return $next($request);
+        } finally {
+            $this->organizations->clear();
+        }
     }
 
     private function authorize(Request $request): AuthorizationResponse
@@ -33,13 +39,11 @@ class RequireOrganization
         }
 
         if ($this->organizations->resolveFor($user) === null) {
-            $this->memberships->clear();
-
             return AuthorizationResponse::missingOrganization();
         }
 
         if ($this->memberships->resolve($user) === null) {
-            return AuthorizationResponse::missingOrganization();
+            return AuthorizationResponse::missingMembership();
         }
 
         return AuthorizationResponse::allow();

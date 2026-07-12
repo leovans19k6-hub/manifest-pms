@@ -1,13 +1,11 @@
 <?php
 
-use Domain\Foundation\Exceptions\AuthorizationException;
 use Domain\Foundation\Http\Middleware\RequireOrganization;
 use Domain\Foundation\Http\Middleware\RequirePermission;
 use Domain\Foundation\Http\Middleware\SetRequestContext;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,6 +22,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(fn (AuthorizationException $exception, Request $request) => response($exception->getMessage(), $exception->status()));
         $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/*') || $request->expectsJson());
     })->create();

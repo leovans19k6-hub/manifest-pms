@@ -2,25 +2,34 @@
 
 namespace Domain\Foundation\Models;
 
-use Domain\Foundation\Enums\OrganizationMemberStatus;
+use Domain\Foundation\Enums\RoleScope;
+use Domain\Foundation\Enums\RoleStatus;
 use Domain\Shared\Traits\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class OrganizationUser extends Model
+class Role extends Model
 {
     use HasFactory, HasUlids;
 
-    protected $fillable = ['organization_id', 'user_id', 'status', 'is_default', 'joined_at'];
+    protected $fillable = [
+        'organization_id',
+        'code',
+        'name',
+        'scope',
+        'status',
+        'is_system',
+        'description',
+    ];
 
     protected function casts(): array
     {
         return [
-            'status' => OrganizationMemberStatus::class,
-            'is_default' => 'boolean',
-            'joined_at' => 'datetime',
+            'scope' => RoleScope::class,
+            'status' => RoleStatus::class,
+            'is_system' => 'boolean',
         ];
     }
 
@@ -29,18 +38,18 @@ class OrganizationUser extends Model
         return $this->belongsTo(Organization::class);
     }
 
-    public function user(): BelongsTo
+    public function permissions(): BelongsToMany
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(Permission::class, 'role_permissions')->withTimestamps();
     }
 
-    public function roles(): BelongsToMany
+    public function memberships(): BelongsToMany
     {
         return $this->belongsToMany(
-            Role::class,
+            OrganizationUser::class,
             'organization_user_roles',
-            'organization_user_id',
             'role_id',
+            'organization_user_id',
         )->withTimestamps();
     }
 }

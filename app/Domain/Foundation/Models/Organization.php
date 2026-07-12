@@ -32,4 +32,9 @@ class Organization extends Model
             ->withPivot(['id', 'status', 'is_default', 'joined_at'])
             ->withTimestamps();
     }
+
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class);
+    }
 }

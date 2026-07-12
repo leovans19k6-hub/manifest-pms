@@ -1,0 +1,1 @@
+@extends('layouts.admin') @section('title','Thêm cơ sở lưu trú') @section('content')<h1 class="mb-6 text-2xl font-bold">Thêm cơ sở lưu trú</h1><form method="POST" action="{{ route('admin.properties.store') }}" class="rounded-xl bg-white p-6 shadow-sm">@csrf @include('admin.properties._form')</form>@endsection

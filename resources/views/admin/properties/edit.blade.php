@@ -1,0 +1,1 @@
+@extends('layouts.admin') @section('title','Sửa cơ sở lưu trú') @section('content')<h1 class="mb-6 text-2xl font-bold">Sửa cơ sở lưu trú</h1><form method="POST" action="{{ route('admin.properties.update',$property) }}" class="rounded-xl bg-white p-6 shadow-sm">@csrf @method('PUT') @include('admin.properties._form')</form>@endsection

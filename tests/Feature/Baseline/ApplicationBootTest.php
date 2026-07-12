@@ -11,8 +11,9 @@ class ApplicationBootTest extends TestCase
         $this->get('/')->assertSuccessful();
     }
 
-    public function test_dashboard_ui_prototype_returns_successful_response(): void
+    public function test_dashboard_requires_authentication(): void
     {
-        $this->get('/dashboard')->assertSuccessful();
+        $this->get('/dashboard')
+            ->assertRedirect('/login');
     }
 }

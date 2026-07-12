@@ -2,12 +2,14 @@
 
 namespace App\Providers;
 
+use Domain\Foundation\Support\CurrentOrganization;
 use Illuminate\Support\ServiceProvider;
 
 class DomainServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->scoped(CurrentOrganization::class, fn () => new CurrentOrganization);
         // Register domain contracts and application services here.
     }
 

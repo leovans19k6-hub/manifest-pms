@@ -13,8 +13,13 @@ Route::middleware('guest')->group(function (): void {
         ->name('login.store');
 });
 
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('logout');
+
 Route::middleware(['auth', 'organization'])->group(function (): void {
     Route::get('/dashboard', fn () => view('dashboard'))->name('dashboard');
+
     Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/properties', [PropertyController::class, 'index'])->middleware('permission:property.properties.view')->name('properties.index');
         Route::get('/properties/create', [PropertyController::class, 'create'])->middleware('permission:property.properties.create')->name('properties.create');
@@ -23,6 +28,4 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::put('/properties/{property}', [PropertyController::class, 'update'])->middleware('permission:property.properties.update')->name('properties.update');
         Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->middleware('permission:property.properties.archive')->name('properties.destroy');
     });
-
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

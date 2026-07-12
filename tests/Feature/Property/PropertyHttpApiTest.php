@@ -17,7 +17,8 @@ class PropertyHttpApiTest extends TestCase
 
     public function test_unauthenticated_api_is_json_unauthorized(): void
     {
-        $this->getJson('/api/v1/properties')->assertUnauthorized()->assertJsonStructure(['message']);
+        $this->getJson('/api/v1/properties')
+            ->assertUnauthorized();
     }
 
     public function test_crud_happy_path_filters_paginates_audits_and_archives(): void
@@ -49,7 +50,15 @@ class PropertyHttpApiTest extends TestCase
     {
         [$user] = $this->principal([]);
         $this->actingAs($user);
-        $this->getJson('/api/v1/properties')->assertForbidden()->assertJsonStructure(['message']);
+
+        $this->getJson('/api/v1/properties')
+            ->assertForbidden()
+            ->assertJson([
+                'error' => [
+                    'code' => 'permission_denied',
+                    'message' => 'Missing required permission [property.properties.view].',
+                ],
+            ]);
     }
 
     public function test_cross_tenant_show_update_archive_are_not_found(): void

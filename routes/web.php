@@ -48,5 +48,24 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::delete('/property-assets/{asset}', [PropertyMediaController::class, 'destroyAsset'])
             ->middleware('permission:property.media.delete')
             ->name('properties.media.assets.destroy');
+        Route::post('/properties/{property}/media/documents', [PropertyMediaController::class, 'storeDocument'])
+            ->middleware('permission:property.documents.create')
+            ->name('properties.media.documents.store');
+
+        Route::patch('/property-documents/{document}', [PropertyMediaController::class, 'updateDocument'])
+            ->middleware('permission:property.documents.update')
+            ->name('properties.media.documents.update');
+
+        Route::patch('/property-documents/{document}/lifecycle', [PropertyMediaController::class, 'changeDocumentLifecycle'])
+            ->middleware('permission:property.documents.update')
+            ->name('properties.media.documents.lifecycle');
+
+        Route::post('/property-documents/{document}/download', [PropertyMediaController::class, 'downloadDocument'])
+            ->middleware('permission:property.documents.view')
+            ->name('properties.media.documents.download');
+
+        Route::delete('/property-documents/{document}', [PropertyMediaController::class, 'destroyDocument'])
+            ->middleware('permission:property.documents.delete')
+            ->name('properties.media.documents.destroy');
     });
 });

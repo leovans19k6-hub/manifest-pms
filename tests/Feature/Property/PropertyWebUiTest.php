@@ -79,6 +79,6 @@ class PropertyWebUiTest extends TestCase
             }$m->roles()->attach($r);
         }
 
-return [$user, $org, $m];
+        return [$user, $org, $m];
     }
 }

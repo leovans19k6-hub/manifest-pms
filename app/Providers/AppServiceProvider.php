@@ -9,6 +9,8 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    // STORY-007A TEST
+
     /**
      * Register any application services.
      */

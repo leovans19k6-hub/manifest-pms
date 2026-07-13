@@ -4,6 +4,7 @@ namespace Domain\Property\Models;
 
 use Database\Factories\PropertyFactory;
 use Domain\Foundation\Models\Organization;
+use Domain\Inventory\Models\Unit;
 use Domain\Property\Enums\PropertyStatus;
 use Domain\Property\Enums\PropertyType;
 use Domain\Shared\Traits\HasUlids;
@@ -44,6 +45,11 @@ class Property extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(PropertyDocument::class);
+    }
+
+    public function units(): HasMany
+    {
+        return $this->hasMany(Unit::class);
     }
 
     public function organization(): BelongsTo

@@ -36,6 +36,10 @@ final class PropertyMediaService
     ): Model {
         $this->assert($m, $p, $permission);
 
+        $originalName = $this->normalizeOriginalName(
+            $f->originalName,
+        );
+
         $key = 'organizations/'
             .$this->org->id()
             .'/properties/'
@@ -43,7 +47,7 @@ final class PropertyMediaService
             .'/'
             .str()->ulid()
             .'-'
-            .basename($f->originalName);
+            .$originalName;
 
         $this->storage->put(
             $key,
@@ -59,6 +63,7 @@ final class PropertyMediaService
                 $value,
                 $f,
                 $key,
+                $originalName,
             ): Model {
                 $attributes = [
                     'organization_id' => $this->org->id(),
@@ -66,7 +71,7 @@ final class PropertyMediaService
                     $classifier => $value,
                     'disk' => $this->storage->disk(),
                     'storage_key' => $key,
-                    'original_name' => $f->originalName,
+                    'original_name' => $originalName,
                     'mime_type' => $f->mimeType,
                     'size_bytes' => $f->size(),
                     'checksum' => hash('sha256', $f->contents),
@@ -89,11 +94,40 @@ final class PropertyMediaService
 
                 return $record;
             });
-        } catch (Throwable $e) {
-            $this->storage->delete($key);
+        } catch (Throwable $original) {
+            try {
+                $this->storage->delete($key);
+            } catch (Throwable) {
+                // Cleanup is best-effort.
+                // Never hide the original persistence/audit failure.
+            }
 
-            throw $e;
+            throw $original;
         }
+    }
+
+    private function normalizeOriginalName(string $originalName): string
+    {
+        $normalized = str_replace('\\', '/', trim($originalName));
+        $normalized = basename($normalized);
+        $normalized = trim($normalized);
+
+        $normalized = preg_replace(
+            '/[^A-Za-z0-9._-]+/',
+            '_',
+            $normalized,
+        );
+
+        if (
+            ! is_string($normalized)
+            || $normalized === ''
+            || $normalized === '.'
+            || $normalized === '..'
+        ) {
+            return 'file';
+        }
+
+        return $normalized;
     }
 
     private function assert(

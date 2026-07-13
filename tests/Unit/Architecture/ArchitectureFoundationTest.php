@@ -53,6 +53,7 @@ class ArchitectureFoundationTest extends TestCase
 
         $this->assertSame([
             'Foundation',
+            'Inventory',
             'Property',
             'Shared',
         ], $directories);

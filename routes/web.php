@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\PropertyController;
+use App\Http\Controllers\Admin\PropertyMediaController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +28,44 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::get('/properties/{property}/edit', [PropertyController::class, 'edit'])->middleware('permission:property.properties.update')->name('properties.edit');
         Route::put('/properties/{property}', [PropertyController::class, 'update'])->middleware('permission:property.properties.update')->name('properties.update');
         Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->middleware('permission:property.properties.archive')->name('properties.destroy');
+        Route::get('/properties/{property}/media', [PropertyMediaController::class, 'index'])->name('properties.media.index');
+        Route::post('/properties/{property}/media/assets', [PropertyMediaController::class, 'storeAsset'])
+            ->middleware('permission:property.media.create')
+            ->name('properties.media.assets.store');
+
+        Route::patch('/property-assets/{asset}', [PropertyMediaController::class, 'updateAsset'])
+            ->middleware('permission:property.media.update')
+            ->name('properties.media.assets.update');
+
+        Route::post('/properties/{property}/media/assets/reorder', [PropertyMediaController::class, 'reorderAssets'])
+            ->middleware('permission:property.media.update')
+            ->name('properties.media.assets.reorder');
+
+        Route::post('/property-assets/{asset}/download', [PropertyMediaController::class, 'downloadAsset'])
+            ->middleware('permission:property.media.view')
+            ->name('properties.media.assets.download');
+
+        Route::delete('/property-assets/{asset}', [PropertyMediaController::class, 'destroyAsset'])
+            ->middleware('permission:property.media.delete')
+            ->name('properties.media.assets.destroy');
+        Route::post('/properties/{property}/media/documents', [PropertyMediaController::class, 'storeDocument'])
+            ->middleware('permission:property.documents.create')
+            ->name('properties.media.documents.store');
+
+        Route::patch('/property-documents/{document}', [PropertyMediaController::class, 'updateDocument'])
+            ->middleware('permission:property.documents.update')
+            ->name('properties.media.documents.update');
+
+        Route::patch('/property-documents/{document}/lifecycle', [PropertyMediaController::class, 'changeDocumentLifecycle'])
+            ->middleware('permission:property.documents.update')
+            ->name('properties.media.documents.lifecycle');
+
+        Route::post('/property-documents/{document}/download', [PropertyMediaController::class, 'downloadDocument'])
+            ->middleware('permission:property.documents.view')
+            ->name('properties.media.documents.download');
+
+        Route::delete('/property-documents/{document}', [PropertyMediaController::class, 'destroyDocument'])
+            ->middleware('permission:property.documents.delete')
+            ->name('properties.media.documents.destroy');
     });
 });

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\PropertyController;
+use App\Http\Controllers\Admin\PropertyMediaController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +28,6 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::get('/properties/{property}/edit', [PropertyController::class, 'edit'])->middleware('permission:property.properties.update')->name('properties.edit');
         Route::put('/properties/{property}', [PropertyController::class, 'update'])->middleware('permission:property.properties.update')->name('properties.update');
         Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->middleware('permission:property.properties.archive')->name('properties.destroy');
+        Route::get('/properties/{property}/media', [PropertyMediaController::class, 'index'])->name('properties.media.index');
     });
 });

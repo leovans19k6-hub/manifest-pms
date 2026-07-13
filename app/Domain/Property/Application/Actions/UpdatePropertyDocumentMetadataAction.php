@@ -13,7 +13,7 @@ final class UpdatePropertyDocumentMetadataAction
 
     public function execute(UpdatePropertyDocumentMetadataCommand $c): PropertyDocument
     {
-        validator->metadata($c->data);
+        $this->validator->metadata($c->data);
 
         return $this->service->updateMetadata($c->membership, $c->document, 'property.documents.update', $c->data->metadata);
     }

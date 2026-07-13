@@ -15,6 +15,7 @@ use Domain\Property\Models\PropertyDocument;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 use Throwable;
 
 final class PropertyMediaAdministrationService
@@ -75,12 +76,32 @@ final class PropertyMediaAdministrationService
         try {
             DB::transaction(function () use ($record): void {
                 $old = $record->getAttributes();
-                $this->audit->record('property.media.deleted', $record, $old, []);
+
                 $record->delete();
+
+                $this->audit->record(
+                    'property.media.deleted',
+                    $record,
+                    $old,
+                    [],
+                );
             });
-        } catch (Throwable $e) {
-            $this->storage->put($key, $backup, $mime);
-            throw $e;
+        } catch (Throwable $original) {
+            try {
+                $this->storage->put(
+                    $key,
+                    $backup,
+                    $mime,
+                );
+            } catch (Throwable) {
+                throw new RuntimeException(
+                    'Property media consistency recovery failed.',
+                    0,
+                    $original,
+                );
+            }
+
+            throw $original;
         }
     }
 

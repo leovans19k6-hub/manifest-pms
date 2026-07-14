@@ -13,7 +13,7 @@ class RbacSeeder extends Seeder
 {
     public function run(): void
     {
-        $permissions = collect([
+        collect([
             ['code' => 'foundation.organizations.view', 'name' => 'View Organizations', 'group' => PermissionGroup::Foundation],
             ['code' => 'foundation.memberships.view', 'name' => 'View Memberships', 'group' => PermissionGroup::Foundation],
             ['code' => 'foundation.roles.view', 'name' => 'View Roles', 'group' => PermissionGroup::Foundation],
@@ -46,8 +46,11 @@ class RbacSeeder extends Seeder
             ],
         );
 
-        $superAdmin->permissions()->syncWithoutDetaching(
-            $permissions->pluck('id')->all(),
+        $superAdmin->permissions()->sync(
+            Permission::query()
+                ->orderBy('id')
+                ->pluck('id')
+                ->all(),
         );
     }
 }

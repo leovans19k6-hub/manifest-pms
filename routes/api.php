@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\PropertyAssetController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\PropertyDocumentController;
+use App\Http\Controllers\Api\UnitController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'organization'])->prefix('v1')->group(function (): void {
@@ -59,4 +60,22 @@ Route::middleware(['auth', 'organization'])->prefix('v1')->group(function (): vo
 
     Route::post('/property-documents/{document}/download', [PropertyDocumentController::class, 'download'])
         ->middleware('permission:property.documents.view');
+
+    Route::get('/properties/{property}/units', [UnitController::class, 'index'])
+        ->middleware('permission:inventory.units.view');
+
+    Route::post('/properties/{property}/units', [UnitController::class, 'store'])
+        ->middleware('permission:inventory.units.create');
+
+    Route::get('/units/{unit}', [UnitController::class, 'show'])
+        ->middleware('permission:inventory.units.view');
+
+    Route::put('/units/{unit}', [UnitController::class, 'update'])
+        ->middleware('permission:inventory.units.update');
+
+    Route::patch('/units/{unit}', [UnitController::class, 'update'])
+        ->middleware('permission:inventory.units.update');
+
+    Route::delete('/units/{unit}', [UnitController::class, 'destroy'])
+        ->middleware('permission:inventory.units.archive');
 });

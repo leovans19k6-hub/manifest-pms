@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Admin\PropertyMediaController;
+use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,49 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::get('/properties/{property}/edit', [PropertyController::class, 'edit'])->middleware('permission:property.properties.update')->name('properties.edit');
         Route::put('/properties/{property}', [PropertyController::class, 'update'])->middleware('permission:property.properties.update')->name('properties.update');
         Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->middleware('permission:property.properties.archive')->name('properties.destroy');
+
+        Route::get(
+            '/properties/{property}/units',
+            [UnitController::class, 'index'],
+        )
+            ->middleware('permission:inventory.units.view')
+            ->name('properties.units.index');
+
+        Route::get(
+            '/properties/{property}/units/create',
+            [UnitController::class, 'create'],
+        )
+            ->middleware('permission:inventory.units.create')
+            ->name('properties.units.create');
+
+        Route::post(
+            '/properties/{property}/units',
+            [UnitController::class, 'store'],
+        )
+            ->middleware('permission:inventory.units.create')
+            ->name('properties.units.store');
+
+        Route::get(
+            '/units/{unit}/edit',
+            [UnitController::class, 'edit'],
+        )
+            ->middleware('permission:inventory.units.update')
+            ->name('units.edit');
+
+        Route::put(
+            '/units/{unit}',
+            [UnitController::class, 'update'],
+        )
+            ->middleware('permission:inventory.units.update')
+            ->name('units.update');
+
+        Route::delete(
+            '/units/{unit}',
+            [UnitController::class, 'destroy'],
+        )
+            ->middleware('permission:inventory.units.archive')
+            ->name('units.destroy');
+
         Route::get('/properties/{property}/media', [PropertyMediaController::class, 'index'])->name('properties.media.index');
         Route::post('/properties/{property}/media/assets', [PropertyMediaController::class, 'storeAsset'])
             ->middleware('permission:property.media.create')

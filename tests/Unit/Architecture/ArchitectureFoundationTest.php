@@ -55,6 +55,7 @@ class ArchitectureFoundationTest extends TestCase
             'Foundation',
             'Inventory',
             'Property',
+            'Reservation',
             'Shared',
         ], $directories);
     }

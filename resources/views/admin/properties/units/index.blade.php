@@ -38,6 +38,75 @@
 		</x-page-header>
 
         @if (session('status'))
+			<x-card class="mb-6">
+				<form method="GET">
+					<div class="grid gap-4 lg:grid-cols-12">
+
+						<div class="lg:col-span-4">
+							<input
+								name="search"
+								value="{{ request('search') }}"
+								placeholder="Search unit..."
+								class="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+							>
+						</div>
+
+						<div class="lg:col-span-2">
+							<select
+								name="status"
+								class="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+							>
+								<option value="">All Status</option>
+
+								@foreach ($statuses as $status)
+									<option
+										value="{{ $status->value }}"
+										@selected(request('status') === $status->value)
+									>
+										{{ ucfirst($status->value) }}
+									</option>
+								@endforeach
+							</select>
+						</div>
+
+						<div class="lg:col-span-2">
+							<select
+								name="type"
+								class="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+							>
+								<option value="">All Type</option>
+
+								@foreach ($types as $type)
+									<option
+										value="{{ $type->value }}"
+										@selected(request('type') === $type->value)
+									>
+										{{ ucfirst($type->value) }}
+									</option>
+								@endforeach
+							</select>
+						</div>
+
+						<div class="lg:col-span-2">
+							<button
+								class="w-full rounded-xl bg-slate-900 py-2.5 text-white"
+							>
+								Filter
+							</button>
+						</div>
+
+						<div class="lg:col-span-2">
+							<a
+								href="{{ route('admin.properties.units.index', $property) }}"
+								class="block w-full rounded-xl border border-slate-300 py-2.5 text-center"
+							>
+								Reset
+							</a>
+						</div>
+
+					</div>
+				</form>
+			</x-card>
             <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                 {{ session('status') }}
             </div>
@@ -79,7 +148,7 @@
 
                         <tbody class="divide-y divide-slate-200 bg-white">
                             @foreach ($units as $unit)
-                                <tr>
+                                <tr class="transition hover:bg-slate-50">
                                     <td class="px-6 py-4">
                                         <div class="font-medium text-slate-900">
                                             {{ $unit->name }}
@@ -90,20 +159,44 @@
                                         </div>
                                     </td>
 
-                                    <td class="px-6 py-4 text-sm text-slate-700">
-                                        {{ ucfirst($unit->type->value) }}
-                                    </td>
+                                    <td class="px-6 py-4">
+										<x-badge color="slate">
+											{{ ucfirst($unit->type->value) }}
+										</x-badge>
+									</td>
+
+                                    <td class="px-6 py-4">
+										@php
+											$statusColor = match ($unit->status->value) {
+												'available', 'active' => 'emerald',
+												'occupied' => 'blue',
+												'cleaning' => 'amber',
+												'maintenance', 'inactive' => 'red',
+												default => 'slate',
+											};
+										@endphp
+
+										<x-badge :color="$statusColor">
+											{{ ucfirst($unit->status->value) }}
+										</x-badge>
+									</td>
 
                                     <td class="px-6 py-4 text-sm text-slate-700">
-                                        {{ ucfirst($unit->status->value) }}
-                                    </td>
+                                        <span class="font-medium">
+											{{ $unit->base_occupancy }}
+										</span>
 
-                                    <td class="px-6 py-4 text-sm text-slate-700">
-                                        {{ $unit->base_occupancy }}–{{ $unit->max_occupancy }}
+										<span class="text-slate-400">
+											/
+										</span>
+
+										<span class="text-slate-600">
+											{{ $unit->max_occupancy }}
+										</span>
                                     </td>
 
                                     <td class="px-6 py-4">
-                                        <div class="flex justify-end gap-3">
+                                        <div class="flex flex-wrap justify-end gap-2">
                                             @if ($abilities['update'])
                                                 <a
                                                     href="{{ route('admin.units.edit', $unit) }}"
@@ -119,148 +212,22 @@
 												Reservations
 											</a>
                                             @if ($abilities['archive'])
-                                                <x-card class="mb-6">
+												<form
+													method="POST"
+													action="{{ route('admin.units.destroy', $unit) }}"
+													onsubmit="return confirm('Archive this unit?')"
+												>
+													@csrf
+													@method('DELETE')
 
-													<form method="GET">
-
-														<div class="grid gap-4 lg:grid-cols-12">
-
-															<div class="lg:col-span-4">
-
-																<label
-																	for="search"
-																	class="mb-2 block text-sm font-medium text-slate-700"
-																>
-																	Search
-																</label>
-
-																<input
-																	id="search"
-																	name="search"
-																	type="text"
-																	value="{{ $filters['search'] ?? '' }}"
-																	placeholder="Search by unit name or code..."
-																	class="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-slate-500 focus:outline-none"
-																>
-
-															</div>
-
-															<div class="lg:col-span-2">
-
-																<label
-																	class="mb-2 block text-sm font-medium"
-																>
-																	Status
-																</label>
-
-																<select
-																	name="status"
-																	class="w-full rounded-xl border border-slate-300 px-4 py-2.5"
-																>
-
-																	<option value="">
-																		All
-																	</option>
-
-																	@foreach($statuses as $status)
-
-																		<option
-																			value="{{ $status->value }}"
-																			@selected(($filters['status'] ?? '') === $status->value)
-																		>
-																			{{ ucfirst($status->value) }}
-																		</option>
-
-																	@endforeach
-
-																</select>
-
-															</div>
-
-															<div class="lg:col-span-2">
-
-																<label
-																	class="mb-2 block text-sm font-medium"
-																>
-																	Type
-																</label>
-
-																<select
-																	name="type"
-																	class="w-full rounded-xl border border-slate-300 px-4 py-2.5"
-																>
-
-																	<option value="">
-																		All
-																	</option>
-
-																	@foreach($types as $type)
-
-																		<option
-																			value="{{ $type->value }}"
-																			@selected(($filters['type'] ?? '') === $type->value)
-																		>
-																			{{ ucfirst($type->value) }}
-																		</option>
-
-																	@endforeach
-
-																</select>
-
-															</div>
-
-															<div class="lg:col-span-2">
-
-																<label
-																	class="mb-2 block text-sm font-medium"
-																>
-																	Occupancy
-																</label>
-
-																<select
-																	disabled
-																	class="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-2.5"
-																>
-
-																	<option>
-																		Coming Soon
-																	</option>
-
-																</select>
-
-															</div>
-
-															<div
-																class="flex items-end gap-3 lg:col-span-2"
-															>
-
-																<x-button
-																	type="submit"
-																	class="w-full"
-																>
-																	Filter
-																</x-button>
-
-																<a
-																	href="{{ route('admin.properties.units.index', $property) }}"
-																	class="w-full"
-																>
-																	<x-button
-																		variant="secondary"
-																		class="w-full"
-																	>
-																		Reset
-																	</x-button>
-																</a>
-
-															</div>
-
-														</div>
-
-													</form>
-
-												</x-card>
-                                            @endif
+													<button
+														type="submit"
+														class="text-sm font-medium text-red-600 hover:text-red-700"
+													>
+														Archive
+													</button>
+												</form>
+											@endif
                                         </div>
                                     </td>
                                 </tr>

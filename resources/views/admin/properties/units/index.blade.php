@@ -119,20 +119,147 @@
 												Reservations
 											</a>
                                             @if ($abilities['archive'])
-                                                <form
-                                                    method="POST"
-                                                    action="{{ route('admin.units.destroy', $unit) }}"
-                                                >
-                                                    @csrf
-                                                    @method('DELETE')
+                                                <x-card class="mb-6">
 
-                                                    <button
-                                                        type="submit"
-                                                        class="text-sm font-medium text-red-600 hover:text-red-700"
-                                                    >
-                                                        Archive
-                                                    </button>
-                                                </form>
+													<form method="GET">
+
+														<div class="grid gap-4 lg:grid-cols-12">
+
+															<div class="lg:col-span-4">
+
+																<label
+																	for="search"
+																	class="mb-2 block text-sm font-medium text-slate-700"
+																>
+																	Search
+																</label>
+
+																<input
+																	id="search"
+																	name="search"
+																	type="text"
+																	value="{{ $filters['search'] ?? '' }}"
+																	placeholder="Search by unit name or code..."
+																	class="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-slate-500 focus:outline-none"
+																>
+
+															</div>
+
+															<div class="lg:col-span-2">
+
+																<label
+																	class="mb-2 block text-sm font-medium"
+																>
+																	Status
+																</label>
+
+																<select
+																	name="status"
+																	class="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+																>
+
+																	<option value="">
+																		All
+																	</option>
+
+																	@foreach($statuses as $status)
+
+																		<option
+																			value="{{ $status->value }}"
+																			@selected(($filters['status'] ?? '') === $status->value)
+																		>
+																			{{ ucfirst($status->value) }}
+																		</option>
+
+																	@endforeach
+
+																</select>
+
+															</div>
+
+															<div class="lg:col-span-2">
+
+																<label
+																	class="mb-2 block text-sm font-medium"
+																>
+																	Type
+																</label>
+
+																<select
+																	name="type"
+																	class="w-full rounded-xl border border-slate-300 px-4 py-2.5"
+																>
+
+																	<option value="">
+																		All
+																	</option>
+
+																	@foreach($types as $type)
+
+																		<option
+																			value="{{ $type->value }}"
+																			@selected(($filters['type'] ?? '') === $type->value)
+																		>
+																			{{ ucfirst($type->value) }}
+																		</option>
+
+																	@endforeach
+
+																</select>
+
+															</div>
+
+															<div class="lg:col-span-2">
+
+																<label
+																	class="mb-2 block text-sm font-medium"
+																>
+																	Occupancy
+																</label>
+
+																<select
+																	disabled
+																	class="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-2.5"
+																>
+
+																	<option>
+																		Coming Soon
+																	</option>
+
+																</select>
+
+															</div>
+
+															<div
+																class="flex items-end gap-3 lg:col-span-2"
+															>
+
+																<x-button
+																	type="submit"
+																	class="w-full"
+																>
+																	Filter
+																</x-button>
+
+																<a
+																	href="{{ route('admin.properties.units.index', $property) }}"
+																	class="w-full"
+																>
+																	<x-button
+																		variant="secondary"
+																		class="w-full"
+																	>
+																		Reset
+																	</x-button>
+																</a>
+
+															</div>
+
+														</div>
+
+													</form>
+
+												</x-card>
                                             @endif
                                         </div>
                                     </td>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\PropertyAssetController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\PropertyDocumentController;
+use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\UnitController;
 use Illuminate\Support\Facades\Route;
 
@@ -78,4 +79,23 @@ Route::middleware(['auth', 'organization'])->prefix('v1')->group(function (): vo
 
     Route::delete('/units/{unit}', [UnitController::class, 'destroy'])
         ->middleware('permission:inventory.units.archive');
+
+    Route::get('/units/{unit}/reservations', [ReservationController::class, 'index'])
+        ->middleware('permission:reservation.reservations.view');
+
+    Route::post('/units/{unit}/reservations', [ReservationController::class, 'store'])
+        ->middleware('permission:reservation.reservations.create');
+
+    Route::get('/reservations/{reservation}', [ReservationController::class, 'show'])
+        ->middleware('permission:reservation.reservations.view');
+
+    Route::put('/reservations/{reservation}', [ReservationController::class, 'update'])
+        ->middleware('permission:reservation.reservations.update');
+
+    Route::patch('/reservations/{reservation}', [ReservationController::class, 'update'])
+        ->middleware('permission:reservation.reservations.update');
+
+    Route::delete('/reservations/{reservation}', [ReservationController::class, 'destroy'])
+        ->middleware('permission:reservation.reservations.cancel');
+
 });

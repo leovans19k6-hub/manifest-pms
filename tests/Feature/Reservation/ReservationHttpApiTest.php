@@ -2,302 +2,37 @@
 
 namespace Tests\Feature\Reservation;
 
-use App\Models\User;
 use Database\Factories\OrganizationFactory;
 use Database\Factories\PropertyFactory;
 use Database\Factories\ReservationFactory;
+use Database\Factories\RoleFactory;
 use Database\Factories\UnitFactory;
-use Domain\Foundation\Enums\OrganizationMemberStatus;
+use Database\Factories\UserFactory;
 use Domain\Foundation\Models\OrganizationUser;
 use Domain\Foundation\Models\Permission;
-use Domain\Foundation\Models\Role;
-use Domain\Foundation\Support\CurrentOrganization;
-use Domain\Reservation\Enums\ReservationSource;
-use Domain\Reservation\Enums\ReservationStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ReservationHttpApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_authorized_user_can_list_reservations(): void
+    public function test_unauthenticated_reservation_api_is_json_unauthorized(): void
     {
-        [$user, $membership, $property, $unit] = $this->contextWithPermission(
+        $unit = UnitFactory::new()->create();
+
+        $this->getJson("/api/v1/units/{$unit->id}/reservations")
+            ->assertUnauthorized();
+    }
+
+    public function test_crud_happy_path_lists_shows_updates_and_cancels(): void
+    {
+        [$user, $organization] = $this->principal([
+            'inventory.units.view',
             'reservation.reservations.view',
-        );
-
-        ReservationFactory::new()->count(2)->create([
-            'organization_id' => $property->organization_id,
-            'property_id' => $property->id,
-            'unit_id' => $unit->id,
-        ]);
-
-        ReservationFactory::new()->create();
-
-        Sanctum::actingAs($user);
-
-        $response = $this->getJson(
-            "/api/v1/units/{$unit->id}/reservations",
-        );
-
-        $response
-            ->assertOk()
-            ->assertJsonCount(2, 'data');
-    }
-
-    public function test_authorized_user_can_view_reservation(): void
-    {
-        [$user, $membership, $property, $unit] = $this->contextWithPermission(
-            'reservation.reservations.view',
-        );
-
-        $reservation = ReservationFactory::new()->create([
-            'organization_id' => $property->organization_id,
-            'property_id' => $property->id,
-            'unit_id' => $unit->id,
-        ]);
-
-        Sanctum::actingAs($user);
-
-        $this->getJson(
-            "/api/v1/reservations/{$reservation->id}",
-        )
-            ->assertOk()
-            ->assertJsonPath('data.id', $reservation->id)
-            ->assertJsonPath('data.code', $reservation->code);
-    }
-
-    public function test_authorized_user_can_create_reservation(): void
-    {
-        [$user, $membership, $property, $unit] = $this->contextWithPermission(
             'reservation.reservations.create',
-        );
-
-        Sanctum::actingAs($user);
-
-        $response = $this->postJson(
-            "/api/v1/units/{$unit->id}/reservations",
-            [
-                'code' => 'RES-1001',
-                'guest_name' => 'Nguyen Van A',
-                'guest_phone' => '0901234567',
-                'guest_email' => 'guest@example.com',
-                'status' => ReservationStatus::Reserved->value,
-                'source' => ReservationSource::Website->value,
-                'adults' => 2,
-                'children' => 1,
-                'check_in' => now()->addDay()->toISOString(),
-                'check_out' => now()->addDays(2)->toISOString(),
-                'notes' => 'VIP Guest',
-            ],
-        );
-
-        $response
-            ->assertCreated()
-            ->assertJsonPath(
-                'data.code',
-                'RES-1001',
-            );
-
-        $this->assertDatabaseHas(
-            'reservations',
-            [
-                'organization_id' => $property->organization_id,
-                'unit_id' => $unit->id,
-                'code' => 'RES-1001',
-            ],
-        );
-    }
-
-    public function test_create_requires_permission(): void
-    {
-        [$user, $membership, $property, $unit] = $this->context();
-
-        Sanctum::actingAs($user);
-
-        $this->postJson(
-            "/api/v1/units/{$unit->id}/reservations",
-            [
-                'code' => 'RES-1',
-                'guest_name' => 'Guest',
-                'check_in' => now()->addDay()->toISOString(),
-                'check_out' => now()->addDays(2)->toISOString(),
-            ],
-        )->assertForbidden();
-    }
-
-    public function test_create_validates_required_fields(): void
-    {
-        [$user, $membership, $property, $unit] = $this->contextWithPermission(
-            'reservation.reservations.create',
-        );
-
-        Sanctum::actingAs($user);
-
-        $this->postJson(
-            "/api/v1/units/{$unit->id}/reservations",
-            [],
-        )
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors([
-                'code',
-                'guest_name',
-                'check_in',
-                'check_out',
-            ]);
-    }
-
-    public function test_authorized_user_can_update_reservation(): void
-    {
-        [$user, $membership, $property, $unit] = $this->contextWithPermission(
             'reservation.reservations.update',
-        );
-
-        $reservation = ReservationFactory::new()->create([
-            'organization_id' => $property->organization_id,
-            'property_id' => $property->id,
-            'unit_id' => $unit->id,
-        ]);
-
-        Sanctum::actingAs($user);
-
-        $response = $this->putJson(
-            "/api/v1/reservations/{$reservation->id}",
-            [
-                'guest_name' => 'Updated Guest',
-                'adults' => 3,
-                'notes' => 'Updated Note',
-            ],
-        );
-
-        $response
-            ->assertOk()
-            ->assertJsonPath(
-                'data.guest_name',
-                'Updated Guest',
-            );
-
-        $this->assertDatabaseHas(
-            'reservations',
-            [
-                'id' => $reservation->id,
-                'guest_name' => 'Updated Guest',
-                'adults' => 3,
-            ],
-        );
-    }
-
-    public function test_update_requires_permission(): void
-    {
-        [$user, $membership, $property, $unit] = $this->context();
-
-        $reservation = ReservationFactory::new()->create([
-            'organization_id' => $property->organization_id,
-            'property_id' => $property->id,
-            'unit_id' => $unit->id,
-        ]);
-
-        Sanctum::actingAs($user);
-
-        $this->putJson(
-            "/api/v1/reservations/{$reservation->id}",
-            [
-                'guest_name' => 'Denied',
-            ],
-        )->assertForbidden();
-    }
-
-    public function test_authorized_user_can_cancel_reservation(): void
-    {
-        [$user, $membership, $property, $unit] = $this->contextWithPermission(
             'reservation.reservations.cancel',
-        );
-
-        $reservation = ReservationFactory::new()->create([
-            'organization_id' => $property->organization_id,
-            'property_id' => $property->id,
-            'unit_id' => $unit->id,
-        ]);
-
-        Sanctum::actingAs($user);
-
-        $this->deleteJson(
-            "/api/v1/reservations/{$reservation->id}",
-        )->assertNoContent();
-
-        $this->assertSoftDeleted(
-            'reservations',
-            [
-                'id' => $reservation->id,
-            ],
-        );
-    }
-
-    public function test_cancel_requires_permission(): void
-    {
-        [$user, $membership, $property, $unit] = $this->context();
-
-        $reservation = ReservationFactory::new()->create([
-            'organization_id' => $property->organization_id,
-            'property_id' => $property->id,
-            'unit_id' => $unit->id,
-        ]);
-
-        Sanctum::actingAs($user);
-
-        $this->deleteJson(
-            "/api/v1/reservations/{$reservation->id}",
-        )->assertForbidden();
-    }
-
-    private function contextWithPermission(
-        string $permission,
-    ): array {
-        [$user, $membership, $property, $unit] = $this->context();
-
-        $permissionModel = Permission::query()
-            ->where('code', $permission)
-            ->firstOrFail();
-
-        $role = Role::query()->create([
-            'organization_id' => $membership->organization_id,
-            'code' => 'ROLE-'.str()->ulid(),
-            'name' => 'Reservation Test Role',
-            'scope' => 'organization',
-            'status' => 'active',
-            'is_system' => false,
-        ]);
-
-        $role->permissions()->attach(
-            $permissionModel->id,
-        );
-
-        $membership->roles()->attach(
-            $role->id,
-        );
-
-        return [
-            $user,
-            $membership->fresh(),
-            $property,
-            $unit,
-        ];
-    }
-
-    private function context(): array
-    {
-        $organization = OrganizationFactory::new()->create();
-
-        $user = User::factory()->create();
-
-        $membership = OrganizationUser::query()->create([
-            'organization_id' => $organization->id,
-            'user_id' => $user->id,
-            'status' => OrganizationMemberStatus::Active->value,
-            'is_default' => true,
-            'joined_at' => now(),
         ]);
 
         $property = PropertyFactory::new()->create([
@@ -309,14 +44,390 @@ class ReservationHttpApiTest extends TestCase
             'property_id' => $property->id,
         ]);
 
-        app(CurrentOrganization::class)
-            ->set($organization);
+        $this->actingAs($user);
+        $created = $this->postJson(
+            "/api/v1/units/{$unit->id}/reservations",
+            [
+                'code' => 'RES-0001',
+                'status' => 'reserved',
+                'source' => 'website',
+
+                'guest_name' => 'Nguyen Van A',
+                'guest_phone' => '0901234567',
+                'guest_email' => 'guest@example.com',
+
+                'adults' => 2,
+                'children' => 1,
+
+                'check_in' => now()->addDay()->toISOString(),
+                'check_out' => now()->addDays(3)->toISOString(),
+
+                'notes' => 'API reservation',
+
+                'metadata' => [
+                    'channel' => 'website',
+                ],
+
+                'organization_id' => 'forbidden',
+                'property_id' => 'forbidden',
+                'unit_id' => 'forbidden',
+            ],
+        )
+            ->assertCreated()
+            ->assertJsonPath('data.code', 'RES-0001')
+            ->assertJsonPath('data.unit_id', $unit->id)
+            ->json('data.id');
+
+        $this->assertDatabaseHas('reservations', [
+            'id' => $created,
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+            'unit_id' => $unit->id,
+            'code' => 'RES-0001',
+        ]);
+
+        ReservationFactory::new()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+            'unit_id' => $unit->id,
+            'code' => 'RES-0002',
+        ]);
+
+        $this->getJson(
+            "/api/v1/units/{$unit->id}/reservations",
+        )
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $created)
+            ->assertJsonPath('data.1.code', 'RES-0002');
+
+        $this->getJson(
+            "/api/v1/reservations/{$created}",
+        )
+            ->assertOk()
+            ->assertJsonPath('data.id', $created);
+
+        $this->patchJson(
+            "/api/v1/reservations/{$created}",
+            [
+                'guest_name' => 'Tran Van B',
+                'organization_id' => 'forbidden',
+                'property_id' => 'forbidden',
+                'unit_id' => 'forbidden',
+            ],
+        )
+            ->assertOk()
+            ->assertJsonPath(
+                'data.guest_name',
+                'Tran Van B',
+            );
+
+        $this->deleteJson(
+            "/api/v1/reservations/{$created}",
+        )->assertNoContent();
+
+        $this->assertDatabaseHas('reservations', [
+            'id' => $created,
+        ]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'event' => 'reservation.created',
+            'auditable_id' => $created,
+        ]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'event' => 'reservation.updated',
+            'auditable_id' => $created,
+        ]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'event' => 'reservation.cancelled',
+            'auditable_id' => $created,
+        ]);
+    }
+
+    public function test_create_validation_errors_are_standard_json(): void
+    {
+        [$user, $organization] = $this->principal([
+            'inventory.units.view',
+            'reservation.reservations.create',
+        ]);
+
+        $property = PropertyFactory::new()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $unit = UnitFactory::new()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $this->postJson(
+            "/api/v1/units/{$unit->id}/reservations",
+            [
+                'code' => '',
+                'status' => 'bad',
+                'source' => 'bad',
+
+                'guest_name' => '',
+                'guest_email' => 'invalid-email',
+
+                'adults' => 0,
+                'children' => -1,
+
+                'check_in' => '',
+                'check_out' => '',
+
+                'id' => 'forced',
+                'organization_id' => 'forbidden',
+                'property_id' => 'forbidden',
+                'unit_id' => 'forbidden',
+            ],
+        )
+            ->assertUnprocessable()
+            ->assertJsonStructure([
+                'message',
+                'errors',
+            ])
+            ->assertJsonValidationErrors([
+                'code',
+                'status',
+                'source',
+                'guest_name',
+                'guest_email',
+                'adults',
+                'children',
+                'check_in',
+                'check_out',
+            ]);
+    }
+
+    public function test_permission_denial_is_json_forbidden(): void
+    {
+        [$user, $organization] = $this->principal([]);
+
+        $property = PropertyFactory::new()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $unit = UnitFactory::new()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+        ]);
+
+        $this->actingAs($user);
+
+        $this->getJson(
+            "/api/v1/units/{$unit->id}/reservations",
+        )
+            ->assertForbidden()
+            ->assertJson([
+                'error' => [
+                    'code' => 'permission_denied',
+                    'message' => 'Missing required permission [reservation.reservations.view].',
+                ],
+            ]);
+    }
+
+    public function test_cross_tenant_list_and_create_are_unprocessable(): void
+    {
+        [$user] = $this->principal([
+            'inventory.units.view',
+            'reservation.reservations.view',
+            'reservation.reservations.create',
+        ]);
+
+        $foreignUnit = UnitFactory::new()->create();
+
+        $this->actingAs($user);
+
+        $this->getJson(
+            "/api/v1/units/{$foreignUnit->id}/reservations",
+        )->assertUnprocessable()
+            ->assertJsonValidationErrors('unit');
+
+        $this->postJson(
+            "/api/v1/units/{$foreignUnit->id}/reservations",
+            [
+                'code' => 'FOREIGN-RES',
+
+                'status' => 'reserved',
+                'source' => 'website',
+
+                'guest_name' => 'Foreign Guest',
+
+                'adults' => 2,
+                'children' => 0,
+
+                'check_in' => now()->addDay()->toISOString(),
+                'check_out' => now()->addDays(2)->toISOString(),
+            ],
+        )->assertUnprocessable()
+            ->assertJsonValidationErrors('unit');
+    }
+
+    public function test_cross_tenant_show_update_cancel_are_unprocessable(): void
+    {
+        [$user] = $this->principal([
+            'reservation.reservations.view',
+            'reservation.reservations.update',
+            'reservation.reservations.cancel',
+        ]);
+
+        $reservation = ReservationFactory::new()->create();
+
+        $this->actingAs($user);
+
+        $this->getJson(
+            "/api/v1/reservations/{$reservation->id}",
+        )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('reservation');
+
+        $this->patchJson(
+            "/api/v1/reservations/{$reservation->id}",
+            [
+                'guest_name' => 'No Permission',
+            ],
+        )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('reservation');
+
+        $this->deleteJson(
+            "/api/v1/reservations/{$reservation->id}",
+        )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('reservation');
+    }
+
+    public function test_duplicate_code_returns_json_validation_errors(): void
+    {
+        [$user, $organization] = $this->principal([
+            'inventory.units.view',
+            'reservation.reservations.create',
+        ]);
+
+        $property = PropertyFactory::new()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $unit = UnitFactory::new()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+        ]);
+
+        ReservationFactory::new()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+            'unit_id' => $unit->id,
+            'code' => 'RES-0001',
+        ]);
+
+        $this->actingAs($user);
+
+        $this->postJson(
+            "/api/v1/units/{$unit->id}/reservations",
+            [
+                'code' => 'RES-0001',
+                'status' => 'reserved',
+                'source' => 'website',
+
+                'guest_name' => 'Duplicate',
+
+                'adults' => 2,
+                'children' => 0,
+
+                'check_in' => now()->addDay()->toISOString(),
+                'check_out' => now()->addDays(3)->toISOString(),
+            ],
+        )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('code');
+    }
+
+    public function test_reservation_conflict_returns_json_validation_errors(): void
+    {
+        [$user, $organization] = $this->principal([
+            'inventory.units.view',
+            'reservation.reservations.create',
+        ]);
+
+        $property = PropertyFactory::new()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $unit = UnitFactory::new()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+        ]);
+
+        ReservationFactory::new()->create([
+            'organization_id' => $organization->id,
+            'property_id' => $property->id,
+            'unit_id' => $unit->id,
+
+            'check_in' => now()->addDay(),
+            'check_out' => now()->addDays(3),
+        ]);
+
+        $this->actingAs($user);
+
+        $this->postJson(
+            "/api/v1/units/{$unit->id}/reservations",
+            [
+                'code' => 'RES-9999',
+
+                'status' => 'reserved',
+                'source' => 'website',
+
+                'guest_name' => 'Conflict Guest',
+
+                'adults' => 2,
+                'children' => 0,
+
+                'check_in' => now()->addDays(2)->toISOString(),
+                'check_out' => now()->addDays(4)->toISOString(),
+            ],
+        )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('check_in');
+    }
+
+    private function principal(array $codes): array
+    {
+        $organization = OrganizationFactory::new()->create();
+
+        $user = UserFactory::new()->create();
+
+        $membership = OrganizationUser::query()->create([
+            'organization_id' => $organization->id,
+            'user_id' => $user->id,
+            'status' => 'active',
+            'is_default' => true,
+        ]);
+
+        if ($codes !== []) {
+            $role = RoleFactory::new()->create([
+                'organization_id' => $organization->id,
+            ]);
+
+            foreach ($codes as $code) {
+                $permission = Permission::query()
+                    ->where('code', $code)
+                    ->firstOrFail();
+
+                $role->permissions()->attach($permission);
+            }
+
+            $membership->roles()->attach($role);
+        }
 
         return [
             $user,
+            $organization,
             $membership,
-            $property,
-            $unit,
         ];
     }
 }

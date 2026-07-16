@@ -206,20 +206,23 @@ class ReservationController extends Controller
             ->firstOrFail();
     }
 
-    private function abilities(OrganizationUser $membership): array
-    {
+    private function abilities(
+        OrganizationUser $membership,
+    ): array {
         return [
             'create' => $this->authorization->can(
                 $membership,
-                'inventory.units.create',
+                'reservation.reservations.create',
             ),
+
             'update' => $this->authorization->can(
                 $membership,
-                'inventory.units.update',
+                'reservation.reservations.update',
             ),
-            'archive' => $this->authorization->can(
+
+            'cancel' => $this->authorization->can(
                 $membership,
-                'inventory.units.archive',
+                'reservation.reservations.cancel',
             ),
         ];
     }
@@ -245,14 +248,6 @@ class ReservationController extends Controller
 
             'notes' => $reservation->notes,
             'metadata' => $reservation->metadata,
-        ];
-    }
-
-    private function formData(): array
-    {
-        return [
-            'types' => UnitType::cases(),
-            'statuses' => UnitStatus::cases(),
         ];
     }
 

@@ -107,7 +107,12 @@
                                                     Edit
                                                 </a>
                                             @endif
-
+											<a
+												href="{{ route('admin.units.reservations.index', $unit) }}"
+												class="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+											>
+												Reservations
+											</a>
                                             @if ($abilities['archive'])
                                                 <form
                                                     method="POST"

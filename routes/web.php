@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Admin\PropertyMediaController;
+use App\Http\Controllers\Admin\ReservationController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,48 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::get('/properties/{property}/edit', [PropertyController::class, 'edit'])->middleware('permission:property.properties.update')->name('properties.edit');
         Route::put('/properties/{property}', [PropertyController::class, 'update'])->middleware('permission:property.properties.update')->name('properties.update');
         Route::delete('/properties/{property}', [PropertyController::class, 'destroy'])->middleware('permission:property.properties.archive')->name('properties.destroy');
+
+        Route::get(
+            '/units/{unit}/reservations',
+            [ReservationController::class, 'index'],
+        )
+            ->middleware('permission:reservation.reservations.view')
+            ->name('units.reservations.index');
+
+        Route::get(
+            '/units/{unit}/reservations/create',
+            [ReservationController::class, 'create'],
+        )
+            ->middleware('permission:reservation.reservations.create')
+            ->name('units.reservations.create');
+
+        Route::post(
+            '/units/{unit}/reservations',
+            [ReservationController::class, 'store'],
+        )
+            ->middleware('permission:reservation.reservations.create')
+            ->name('units.reservations.store');
+
+        Route::get(
+            '/reservations/{reservation}/edit',
+            [ReservationController::class, 'edit'],
+        )
+            ->middleware('permission:reservation.reservations.update')
+            ->name('reservations.edit');
+
+        Route::put(
+            '/reservations/{reservation}',
+            [ReservationController::class, 'update'],
+        )
+            ->middleware('permission:reservation.reservations.update')
+            ->name('reservations.update');
+
+        Route::delete(
+            '/reservations/{reservation}',
+            [ReservationController::class, 'destroy'],
+        )
+            ->middleware('permission:reservation.reservations.cancel')
+            ->name('reservations.destroy');
 
         Route::get(
             '/properties/{property}/units',

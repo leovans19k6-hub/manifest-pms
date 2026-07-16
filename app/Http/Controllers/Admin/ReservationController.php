@@ -150,8 +150,8 @@ class ReservationController extends Controller
 
         return redirect()
             ->route(
-                'admin.reservations.edit',
-                $updated,
+                'admin.units.reservations.index',
+                $reservation->unit_id,
             )
             ->with(
                 'status',
@@ -184,7 +184,7 @@ class ReservationController extends Controller
         return redirect()
             ->route(
                 'admin.units.reservations.index',
-                $unitId,
+                $reservation->unit_id,
             )
             ->with(
                 'status',

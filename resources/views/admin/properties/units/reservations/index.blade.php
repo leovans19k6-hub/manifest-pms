@@ -1,32 +1,25 @@
 @extends('layouts.admin')
-@section('title', 'Units')
+@section('title', 'Reservations')
 @section('content')
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="text-sm font-medium text-slate-500">
-					{{ $unit->property->name }}
-				</p>
+                    {{ $property->name }}
+                </p>
 
-				<h1 class="text-2xl font-semibold text-slate-900">
+                <h1 class="text-2xl font-semibold text-slate-900">
 					Reservations
 				</h1>
-
-				<p class="mt-1 text-sm text-slate-500">
-					Unit:
-					<span class="font-medium text-slate-700">
-						{{ $unit->name }}
-					</span>
-				</p>
             </div>
 
             <div class="flex items-center gap-3">
                 <a
-					href="{{ route('admin.units.edit', $unit) }}"
-					class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
-				>
-					Back to Unit
-				</a>
+                    href="{{ route('admin.properties.units.index', $property) }}"
+                    class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
+                >
+                    Back to Units
+                </a>
 
                 @if ($abilities['create'])
                     <a
@@ -46,7 +39,7 @@
         @endif
 
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            @if ($reservations->isEmpty())
+            @if ($units->isEmpty())
                 <div class="px-6 py-12 text-center">
                     <h2 class="text-base font-semibold text-slate-900">
                         No reservations yet
@@ -60,58 +53,84 @@
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-slate-200">
                         <thead class="bg-slate-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    Reservation
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    Source
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    Status
-                                </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    Stay
-                                </th>
-                                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
+						<tr>
+
+						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+						Reservation
+						</th>
+
+						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+						Guest
+						</th>
+
+						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+						Stay
+						</th>
+
+						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+						Status
+						</th>
+
+						<th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+						Actions
+						</th>
+
+						</tr>
+						</thead>
 
                         <tbody class="divide-y divide-slate-200 bg-white">
-							@foreach ($reservations as $reservation)
-								<tr>
-									<td class="px-6 py-4">
+                            @foreach ($reservations as $reservation)
+                                <tr>
+                                    <td class="px-6 py-4">
+
+									<div class="font-medium text-slate-900">
+										{{ $reservation->code }}
+									</div>
+
+									<div class="text-sm text-slate-500">
+										{{ $reservation->source->value }}
+									</div>
+
+									</td>
+
+                                    <td class="px-6 py-4">
+
 										<div class="font-medium text-slate-900">
-											{{ $reservation->code }}
+											{{ $reservation->guest_name }}
 										</div>
 
 										<div class="text-sm text-slate-500">
-											{{ $reservation->guest_name }}
+											{{ $reservation->guest_phone }}
 										</div>
+
 									</td>
 
-									<td class="px-6 py-4 text-sm text-slate-700">
-										{{ ucfirst($reservation->source->value) }}
-									</td>
+                                    <td class="px-6 py-4 text-sm text-slate-700">
 
-									<td class="px-6 py-4 text-sm text-slate-700">
-										{{ ucfirst($reservation->status->value) }}
-									</td>
-
-									<td class="px-6 py-4 text-sm text-slate-700">
 										<div>
 											{{ $reservation->check_in->format('d/m/Y') }}
 										</div>
 
-										<div class="text-xs text-slate-500">
+										<div class="text-slate-500">
 											{{ $reservation->check_out->format('d/m/Y') }}
 										</div>
+
 									</td>
 
-									<td class="px-6 py-4">
+                                    <td class="px-6 py-4">
+
+										<span
+											class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+										>
+											{{ ucfirst($reservation->status->value) }}
+										</span>
+
+									</td>
+
+                                    <td class="px-6 py-4">
+
 										<div class="flex justify-end gap-3">
+
 											@if ($abilities['update'])
 												<a
 													href="{{ route('admin.reservations.edit', $reservation) }}"
@@ -137,11 +156,13 @@
 													</button>
 												</form>
 											@endif
+
 										</div>
+
 									</td>
-								</tr>
-							@endforeach
-						</tbody>
+                                </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 </div>
             @endif

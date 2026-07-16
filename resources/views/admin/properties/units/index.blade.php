@@ -2,35 +2,40 @@
 @section('title', 'Units')
 @section('content')
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <p class="text-sm font-medium text-slate-500">
-                    {{ $property->name }}
-                </p>
+        <x-page-header
+			title="Units"
+			:description="'Manage rooms, villas and inventory for ' . $property->name"
+		>
 
-                <h1 class="text-2xl font-semibold text-slate-900">
-                    Units
-                </h1>
-            </div>
+			<x-slot:actions>
 
-            <div class="flex items-center gap-3">
-                <a
-                    href="{{ route('admin.properties.edit', $property) }}"
-                    class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
-                >
-                    Back to Property
-                </a>
+				<a
+					href="{{ route('admin.properties.edit', $property) }}"
+				>
+					<x-button
+						variant="secondary"
+					>
+						← Property
+					</x-button>
+				</a>
 
-                @if ($abilities['create'])
-                    <a
-                        href="{{ route('admin.properties.units.create', $property) }}"
-                        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
-                    >
-                        Create Unit
-                    </a>
-                @endif
-            </div>
-        </div>
+				@if ($abilities['create'])
+
+					<a
+						href="{{ route('admin.properties.units.create', $property) }}"
+					>
+						<x-button>
+
+							+ Create Unit
+
+						</x-button>
+					</a>
+
+				@endif
+
+			</x-slot:actions>
+
+		</x-page-header>
 
         @if (session('status'))
             <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">

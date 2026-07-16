@@ -1,7 +1,22 @@
 @extends('layouts.admin')
-@section('title','Cơ sở lưu trú')
+
+@section('title', 'Properties')
+
 @section('content')
-<div class="mb-6 flex items-center justify-between"><div><h1 class="text-2xl font-bold">Cơ sở lưu trú</h1><p class="text-gray-500">Quản lý Property trong tổ chức hiện tại.</p></div>@if($abilities['create'])<a href="{{ route('admin.properties.create') }}" class="rounded-lg bg-slate-900 px-4 py-2 text-white">Thêm mới</a>@endif</div>
+<<x-page-header
+    title="Properties"
+    description="Manage all hotels, villas, apartments and resorts in your organization."
+>
+    <x-slot:actions>
+        @if ($abilities['create'])
+            <a href="{{ route('admin.properties.create') }}">
+                <x-button>
+                    + Create Property
+                </x-button>
+            </a>
+        @endif
+    </x-slot:actions>
+</x-page-header>
 <form method="GET" class="mb-6 grid gap-3 rounded-xl bg-white p-4 shadow-sm md:grid-cols-6">
 <input name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Tên hoặc mã" class="rounded-lg border px-3 py-2 md:col-span-2">
 <select name="status" class="rounded-lg border px-3 py-2"><option value="">Mọi trạng thái</option>@foreach(\Domain\Property\Enums\PropertyStatus::cases() as $v)<option value="{{ $v->value }}" @selected(($filters['status']??'')===$v->value)>{{ $v->value }}</option>@endforeach</select>

@@ -6,7 +6,21 @@
 			title="Units"
 			:description="'Manage rooms, villas and inventory for ' . $property->name"
 		>
+			<div class="flex items-center justify-between">
 
+				<div class="text-sm text-slate-500">
+
+					Showing
+
+					<span class="font-semibold">
+						{{ $units->count() }}
+					</span>
+
+					units
+
+				</div>
+
+			</div>
 			<x-slot:actions>
 
 				<a
@@ -116,7 +130,18 @@
             @if ($units->isEmpty())
                 <div class="px-6 py-12 text-center">
                     <h2 class="text-base font-semibold text-slate-900">
-                        No units yet
+                        <x-empty-state
+							title="No units found"
+							description="Create your first unit for this property."
+						>
+							@if($abilities['create'])
+								<a href="{{ route('admin.properties.units.create',$property) }}">
+									<x-button>
+										+ Create Unit
+									</x-button>
+								</a>
+							@endif
+						</x-empty-state>
                     </h2>
 
                     <p class="mt-2 text-sm text-slate-500">
@@ -140,6 +165,10 @@
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                                     Occupancy
                                 </th>
+								{{-- Availability Calendar Column (Sprint 010) --}}
+								<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+									Updated
+								</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
                                     Actions
                                 </th>
@@ -194,7 +223,9 @@
 											{{ $unit->max_occupancy }}
 										</span>
                                     </td>
-
+									<td class="px-6 py-4 text-sm text-slate-500">
+										{{ $unit->updated_at?->diffForHumans() }}
+									</td>
                                     <td class="px-6 py-4">
                                         <div class="flex flex-wrap justify-end gap-2">
                                             @if ($abilities['update'])
@@ -234,6 +265,15 @@
                             @endforeach
                         </tbody>
                     </table>
+					@if($units instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
+
+						<div class="border-t bg-white px-6 py-4">
+
+							{{ $units->links() }}
+
+						</div>
+
+					@endif
                 </div>
             @endif
         </div>

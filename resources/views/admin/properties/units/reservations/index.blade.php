@@ -37,50 +37,57 @@
                 {{ session('status') }}
             </div>
         @endif
+		@if ($reservations->isEmpty())
 
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            @if ($units->isEmpty())
-                <div class="px-6 py-12 text-center">
-                    <h2 class="text-base font-semibold text-slate-900">
-                        No reservations yet
-                    </h2>
+			<x-empty-state
+				title="No reservations yet"
+				description="Create the first reservation for this unit."
+			>
+				@if ($abilities['create'])
+					<x-button
+						:href="route('admin.units.reservations.create', $unit)"
+					>
+						Create Reservation
+					</x-button>
+				@endif
+			</x-empty-state>
 
-                    <p class="mt-2 text-sm text-slate-500">
-                        Create the first reservation for this unit.
-                    </p>
-                </div>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-200">
-                        <thead class="bg-slate-50">
-						<tr>
+		@else
+		<x-table>
+
+				<x-slot:head>
+
+					<tr class="hover:bg-slate-50 transition-colors">
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-						Reservation
+							Reservation
 						</th>
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-						Guest
+							Guest
 						</th>
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-						Stay
+							Stay
 						</th>
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-						Status
+							Status
 						</th>
 
 						<th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-						Actions
+							Actions
 						</th>
 
-						</tr>
-						</thead>
+					</tr>
 
-                        <tbody class="divide-y divide-slate-200 bg-white">
-                            @foreach ($reservations as $reservation)
-                                <tr>
+				</x-slot:head>
+
+				<x-slot:body>
+
+					@foreach ($reservations as $reservation)
+
+						<tr class="hover:bg-slate-50 transition-colors">
                                     <td class="px-6 py-4">
 
 									<div class="font-medium text-slate-900">
@@ -161,11 +168,13 @@
 
 									</td>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
+
+					@endforeach
+
+				</x-slot:body>
+
+			@endif
+
+		</x-table>
     </div>
 @endsection

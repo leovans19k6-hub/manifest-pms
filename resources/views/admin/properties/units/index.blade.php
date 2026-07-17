@@ -6,21 +6,7 @@
 			title="Units"
 			:description="'Manage rooms, villas and inventory for ' . $property->name"
 		>
-			<div class="flex items-center justify-between">
-
-				<div class="text-sm text-slate-500">
-
-					Showing
-
-					<span class="font-semibold">
-						{{ $units->count() }}
-					</span>
-
-					units
-
-				</div>
-
-			</div>
+			
 			<x-slot:actions>
 
 				<a
@@ -50,10 +36,16 @@
 			</x-slot:actions>
 
 		</x-page-header>
-
-        @if (session('status'))
-			<x-card class="mb-6">
-				<form method="GET">
+		<div class="flex items-center justify-between">
+				<div class="text-sm text-slate-500">
+					Showing
+					<span class="font-semibold">
+						{{ $units->count() }}
+					</span>
+					units
+				</div>
+			</div>
+        <x-page-toolbar>
 					<div class="grid gap-4 lg:grid-cols-12">
 
 						<div class="lg:col-span-4">
@@ -119,12 +111,13 @@
 						</div>
 
 					</div>
-				</form>
-			</x-card>
-            <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-                {{ session('status') }}
-            </div>
-        @endif
+				</x-page-toolbar>
+
+			@if(session('status'))
+			<x-alert>
+				{{ session('status') }}
+			</x-alert>
+		@endif
 
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             @if ($units->isEmpty())
@@ -258,15 +251,6 @@
                             @endforeach
                         </tbody>
                     </table>
-					@if($units instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
-
-						<div class="border-t bg-white px-6 py-4">
-
-							{{ $units->links() }}
-
-						</div>
-
-					@endif
                 </div>
             @endif
         </div>

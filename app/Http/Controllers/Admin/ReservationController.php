@@ -1,22 +1,25 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Reservation\StoreReservationRequest;
 use App\Http\Requests\Reservation\UpdateReservationRequest;
-use App\Http\Controllers\Controller;
-use Domain\Reservation\Application\Actions\CreateReservationAction;
-use Domain\Reservation\Application\Actions\UpdateReservationAction;
-use Domain\Reservation\Application\Actions\CancelReservationAction;
-use Domain\Reservation\Application\Commands\CreateReservationCommand;
-use Domain\Reservation\Application\Commands\UpdateReservationCommand;
-use Domain\Reservation\Application\Commands\CancelReservationCommand;
-use Domain\Reservation\Application\Mappers\ReservationDataMapper;
 use Domain\Foundation\Models\OrganizationUser;
 use Domain\Foundation\Services\AuthorizationService;
 use Domain\Foundation\Support\CurrentOrganization;
 use Domain\Inventory\Services\UnitQueryService;
-use Domain\Reservation\Services\ReservationQueryService;
+use Domain\Reservation\Application\Actions\CancelReservationAction;
+use Domain\Reservation\Application\Actions\CreateReservationAction;
+use Domain\Reservation\Application\Actions\UpdateReservationAction;
+use Domain\Reservation\Application\Commands\CancelReservationCommand;
+use Domain\Reservation\Application\Commands\CreateReservationCommand;
+use Domain\Reservation\Application\Commands\UpdateReservationCommand;
+use Domain\Reservation\Application\Mappers\ReservationDataMapper;
 use Domain\Reservation\Models\Reservation;
+use Domain\Reservation\Services\ReservationQueryService;
+use Domain\Reservation\Enums\ReservationStatus;
+use Domain\Reservation\Enums\ReservationSource;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -38,20 +41,41 @@ class ReservationController extends Controller
         $unitModel = $units->find(
             $membership,
             $unit,
-        );
+        )->loadMissing('property');;
 
-        return view('admin.reservations.index', [
-			'unit' => $unitModel,
-			'reservations' => $queries->list(
+        return view('admin.properties.units.reservations.index', [
+            'unit' => $unitModel,
+            'reservations' => $queries->list(
+                $membership,
+                $unitModel,
+            ),
+            'abilities' => $this->abilities(
+                $membership,
+            ),
+        ]);
+    }
+	public function show(
+		Request $request,
+		string $reservation,
+		ReservationQueryService $queries,
+	): View {
+		$membership = $this->membership($request);
+
+		abort_unless(
+			$this->authorization->can(
 				$membership,
-				$unitModel,
+				'reservation.reservations.update',
 			),
-			'abilities' => $this->abilities(
+			403,
+		);
+
+		return view('admin.properties.units.reservations.show', [
+			'reservation' => $queries->find(
 				$membership,
+				$reservation,
 			),
 		]);
-    }
-
+	}
     public function create(
         Request $request,
         string $unit,
@@ -67,12 +91,13 @@ class ReservationController extends Controller
             403,
         );
 
-        return view('admin.reservations.create', [
-            'unit' => $units->find(
-                $membership,
-                $unit,
-            ),
-        ]);
+        return view('admin.properties.units.reservations.create', [
+			...$this->formData(),
+			'unit' => $units->find(
+				$membership,
+				$unit,
+			),
+		]);
     }
 
     public function store(
@@ -101,7 +126,7 @@ class ReservationController extends Controller
 
         return redirect()
             ->route(
-                'admin.reservations.edit',
+                'admin.units.reservations.edit',
                 $reservation,
             )
             ->with(
@@ -125,12 +150,13 @@ class ReservationController extends Controller
             403,
         );
 
-        return view('admin.reservations.edit', [
-            'reservation' => $queries->find(
-                $membership,
-                $reservation,
-            ),
-        ]);
+        return view('admin.properties.units.reservations.edit', [
+			...$this->formData(),
+			'reservation' => $queries->find(
+				$membership,
+				$reservation,
+			),
+		]);
     }
 
     public function update(
@@ -165,7 +191,7 @@ class ReservationController extends Controller
         return redirect()
             ->route(
                 'admin.units.reservations.index',
-				$updated->unit_id,
+                $updated->unit_id,
             )
             ->with(
                 'status',
@@ -198,7 +224,7 @@ class ReservationController extends Controller
         return redirect()
             ->route(
                 'admin.units.reservations.index',
-				$unitId,
+                $unitId,
             )
             ->with(
                 'status',
@@ -240,7 +266,13 @@ class ReservationController extends Controller
             ),
         ];
     }
-
+	private function formData(): array
+	{
+		return [
+			'statuses' => ReservationStatus::cases(),
+			'sources' => ReservationSource::cases(),
+		];
+	}
     private function reservationAttributes(
         Reservation $reservation,
     ): array {

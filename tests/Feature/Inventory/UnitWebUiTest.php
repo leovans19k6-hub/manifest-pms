@@ -52,7 +52,7 @@ class UnitWebUiTest extends TestCase
             ->assertDontSee($foreignUnit->name)
             ->assertDontSee('Create Unit')
             ->assertDontSee('Edit')
-            ->assertDontSee('Archive');
+            ->assertDontSee('>Archive<', false);
     }
 
     public function test_create_validation_and_success_flow_use_application_layer_and_audit(): void

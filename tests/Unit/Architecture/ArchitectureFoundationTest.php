@@ -7,6 +7,7 @@ use Domain\Shared\Contracts\DomainService;
 use Domain\Shared\DTO\DataTransferObject;
 use Domain\Shared\Exceptions\DomainException;
 use Domain\Shared\Traits\HasUlids;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 class ArchitectureFoundationTest extends TestCase
@@ -41,22 +42,20 @@ class ArchitectureFoundationTest extends TestCase
     }
 
     public function test_only_approved_domain_modules_are_present(): void
-    {
-        $domainPath = base_path('app/Domain');
+	{
+		$modules = collect(File::directories(app_path('Domain')))
+			->map(fn (string $path) => basename($path))
+			->sort()
+			->values()
+			->all();
 
-        $directories = collect(scandir($domainPath))
-            ->reject(fn (string $directory): bool => in_array($directory, ['.', '..'], true))
-            ->filter(fn (string $directory): bool => is_dir($domainPath.DIRECTORY_SEPARATOR.$directory))
-            ->sort()
-            ->values()
-            ->all();
-
-        $this->assertSame([
-            'Foundation',
-            'Inventory',
-            'Property',
-            'Reservation',
-            'Shared',
-        ], $directories);
-    }
+		$this->assertSame([
+			'Availability',
+			'Foundation',
+			'Inventory',
+			'Property',
+			'Reservation',
+			'Shared',
+		], $modules);
+	}
 }

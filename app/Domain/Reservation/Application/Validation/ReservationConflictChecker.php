@@ -15,9 +15,9 @@ final class ReservationConflictChecker
         return Reservation::query()
             ->where('unit_id', $unitId)
             ->when(
-				$ignoreReservationId !== null,
-				fn ($query) => $query->where('id', '!=', $ignoreReservationId),
-			)
+                $ignoreReservationId !== null,
+                fn ($query) => $query->where('id', '!=', $ignoreReservationId),
+            )
             ->where(function ($query) use ($checkIn, $checkOut) {
                 $query
                     ->where('check_in', '<', $checkOut)

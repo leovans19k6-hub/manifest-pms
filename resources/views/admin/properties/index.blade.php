@@ -37,9 +37,9 @@
 
 </div>
 {{-- Future: Skeleton loading component --}}
-<x-card class="mb-6">
+<x-page-toolbar>
 
-    <form method="GET">
+	<div class="grid gap-4 lg:grid-cols-12">
 
         <div class="grid gap-4 lg:grid-cols-12">
 
@@ -195,9 +195,9 @@
 
         </div>
 
-    </form>
+    </div>
 
-</x-card>
+</x-page-toolbar>
 @if ($properties->isEmpty())
 
     <x-empty-state

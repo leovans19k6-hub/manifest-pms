@@ -32,20 +32,33 @@ class UnitController extends Controller
     ) {}
 
     public function index(
-        Request $request,
-        string $property,
-        PropertyService $properties,
-        UnitQueryService $queries,
-    ): View {
-        $membership = $this->membership($request);
-        $propertyModel = $properties->find($property);
+		Request $request,
+		string $property,
+		PropertyService $properties,
+		UnitQueryService $queries,
+	): View {
+		$membership = $this->membership($request);
 
-        return view('admin.properties.units.index', [
-            'property' => $propertyModel,
-            'units' => $queries->list($membership, $propertyModel),
-            'abilities' => $this->abilities($membership),
-        ]);
-    }
+		$propertyModel = $properties->find($property);
+
+		$units = $queries->list(
+			$membership,
+			$propertyModel,
+		);
+
+		$abilities = $this->abilities($membership);
+
+		return view(
+			'admin.properties.units.index',
+			[
+				'property' => $propertyModel,
+				'units' => $units,
+				'abilities' => $abilities,
+				'statuses' => UnitStatus::cases(),
+				'types' => UnitType::cases(),
+			],
+		);
+	}
 
     public function create(
         Request $request,

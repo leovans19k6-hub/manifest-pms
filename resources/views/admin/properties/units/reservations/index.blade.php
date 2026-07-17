@@ -5,7 +5,7 @@
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <p class="text-sm font-medium text-slate-500">
-                    {{ $property->name }}
+                    {{ $unit->property->name }}
                 </p>
 
                 <h1 class="text-2xl font-semibold text-slate-900">
@@ -15,11 +15,18 @@
 
             <div class="flex items-center gap-3">
                 <a
-                    href="{{ route('admin.properties.units.index', $property) }}"
+                    href="{{ route('admin.properties.units.index', $unit->property) }}"
                     class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
                 >
                     Back to Units
                 </a>
+				
+				<a
+					href="{{ route('admin.units.availability.index', $unit) }}"
+					class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
+				>
+					Availability
+				</a>
 
                 @if ($abilities['create'])
                     <a

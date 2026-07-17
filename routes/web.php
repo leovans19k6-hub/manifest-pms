@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Admin\PropertyMediaController;
 use App\Http\Controllers\Admin\ReservationController;
 use App\Http\Controllers\Admin\UnitController;
+use App\Http\Controllers\Admin\AvailabilityController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,11 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         )
             ->middleware('permission:reservation.reservations.view')
             ->name('units.reservations.index');
+
+		Route::get(
+			'/reservations/{reservation}',
+			[ReservationController::class, 'show'],
+		)->name('reservations.show');
 
         Route::get(
             '/units/{unit}/reservations/create',
@@ -72,7 +78,14 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         )
             ->middleware('permission:reservation.reservations.cancel')
             ->name('reservations.destroy');
-
+			
+		Route::get(
+			'/units/{unit}/availability',
+			[AvailabilityController::class, 'index'],
+		)
+			->middleware('permission:reservation.reservations.view')
+			->name('units.availability.index');
+			
         Route::get(
             '/properties/{property}/units',
             [UnitController::class, 'index'],
@@ -154,5 +167,11 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::delete('/property-documents/{document}', [PropertyMediaController::class, 'destroyDocument'])
             ->middleware('permission:property.documents.delete')
             ->name('properties.media.documents.destroy');
+			
+		Route::view(
+			'/ui/calendar',
+			'admin.ui.calendar-preview'
+		)->name('admin.ui.calendar');
+
     });
 });

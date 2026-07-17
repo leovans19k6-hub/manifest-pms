@@ -12,17 +12,17 @@ final class ReservationConflictChecker
         \DateTimeInterface $checkOut,
         ?string $ignoreReservationId = null,
     ): bool {
-        return Reservation::query()
-            ->where('unit_id', $unitId)
-            ->when(
-                $ignoreReservationId !== null,
-                fn ($query) => $query->whereKeyNot($ignoreReservationId),
-            )
-            ->where(function ($query) use ($checkIn, $checkOut) {
-                $query
-                    ->where('check_in', '<', $checkOut)
-                    ->where('check_out', '>', $checkIn);
-            })
-            ->exists();
+				return Reservation::query()
+				->where('unit_id', $unitId)
+				->when(
+					$ignoreReservationId !== null,
+					fn ($query) => $query->whereKeyNot($ignoreReservationId),
+				)
+				->where(function ($query) use ($checkIn, $checkOut) {
+					$query
+						->where('check_in', '<', $checkOut)
+						->where('check_out', '>', $checkIn);
+				})
+				->exists();
     }
 }

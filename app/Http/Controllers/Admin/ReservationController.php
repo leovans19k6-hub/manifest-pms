@@ -1,13 +1,22 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use App\Http\Requests\Reservation\StoreReservationRequest;
+use App\Http\Requests\Reservation\UpdateReservationRequest;
 use App\Http\Controllers\Controller;
+use Domain\Reservation\Application\Actions\CreateReservationAction;
+use Domain\Reservation\Application\Actions\UpdateReservationAction;
+use Domain\Reservation\Application\Actions\CancelReservationAction;
+use Domain\Reservation\Application\Commands\CreateReservationCommand;
+use Domain\Reservation\Application\Commands\UpdateReservationCommand;
+use Domain\Reservation\Application\Commands\CancelReservationCommand;
+use Domain\Reservation\Application\Mappers\ReservationDataMapper;
 use Domain\Foundation\Models\OrganizationUser;
 use Domain\Foundation\Services\AuthorizationService;
 use Domain\Foundation\Support\CurrentOrganization;
 use Domain\Inventory\Services\UnitQueryService;
 use Domain\Reservation\Services\ReservationQueryService;
+use Domain\Reservation\Models\Reservation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -31,11 +40,16 @@ class ReservationController extends Controller
             $unit,
         );
 
-        return view('admin.properties.units.index', [
-            'property' => $propertyModel,
-            'reservations' => $queries->list($membership, $propertyModel),
-            'abilities' => $this->abilities($membership),
-        ]);
+        return view('admin.reservations.index', [
+			'unit' => $unitModel,
+			'reservations' => $queries->list(
+				$membership,
+				$unitModel,
+			),
+			'abilities' => $this->abilities(
+				$membership,
+			),
+		]);
     }
 
     public function create(
@@ -151,7 +165,7 @@ class ReservationController extends Controller
         return redirect()
             ->route(
                 'admin.units.reservations.index',
-                $reservation->unit_id,
+				$updated->unit_id,
             )
             ->with(
                 'status',
@@ -184,7 +198,7 @@ class ReservationController extends Controller
         return redirect()
             ->route(
                 'admin.units.reservations.index',
-                $reservation->unit_id,
+				$unitId,
             )
             ->with(
                 'status',
@@ -249,75 +263,5 @@ class ReservationController extends Controller
             'notes' => $reservation->notes,
             'metadata' => $reservation->metadata,
         ];
-    }
-
-    private function unitData(
-        Request $request,
-        ?Unit $unit = null,
-    ): UnitData {
-        return new UnitData(
-            code: $request->input('code', $unit?->code),
-            name: $request->input('name', $unit?->name),
-            slug: $request->input('slug', $unit?->slug),
-
-            type: UnitType::from(
-                $request->input(
-                    'type',
-                    $unit?->type->value,
-                ),
-            ),
-
-            status: UnitStatus::from(
-                $request->input(
-                    'status',
-                    $unit?->status->value,
-                ),
-            ),
-
-            capacityAdults: (int) $request->input(
-                'capacity_adults',
-                $unit?->capacity_adults,
-            ),
-
-            capacityChildren: (int) $request->input(
-                'capacity_children',
-                $unit?->capacity_children,
-            ),
-
-            bedrooms: (int) $request->input(
-                'bedrooms',
-                $unit?->bedrooms,
-            ),
-
-            bathrooms: (int) $request->input(
-                'bathrooms',
-                $unit?->bathrooms,
-            ),
-
-            baseOccupancy: (int) $request->input(
-                'base_occupancy',
-                $unit?->base_occupancy,
-            ),
-
-            maxOccupancy: (int) $request->input(
-                'max_occupancy',
-                $unit?->max_occupancy,
-            ),
-
-            sortOrder: (int) $request->input(
-                'sort_order',
-                $unit?->sort_order,
-            ),
-
-            description: $request->input(
-                'description',
-                $unit?->description,
-            ),
-
-            metadata: $request->input(
-                'metadata',
-                $unit?->metadata,
-            ),
-        );
     }
 }

@@ -126,11 +126,7 @@
 
                                     <td class="px-6 py-4">
 
-										<span
-											class="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
-										>
-											{{ ucfirst($reservation->status->value) }}
-										</span>
+										<x-status-badge :status="$reservation->status" />
 
 									</td>
 

@@ -1,5 +1,43 @@
 <!DOCTYPE html>
-<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>@yield('title','Quản trị') | Manifest Stay PMS</title>@vite(['resources/css/app.css','resources/js/app.js'])</head>
-<body class="min-h-screen bg-gray-50 text-gray-900">
-<div class="min-h-screen md:flex"><aside class="w-full bg-slate-900 p-5 text-white md:min-h-screen md:w-64"><a href="{{ route('dashboard') }}" class="text-xl font-bold">Manifest Stay PMS</a><nav class="mt-8 space-y-2"><a href="{{ route('dashboard') }}" class="block rounded-lg px-3 py-2 hover:bg-slate-800">Tổng quan</a>@if(auth()->check())<a href="{{ route('admin.properties.index') }}" class="block rounded-lg px-3 py-2 hover:bg-slate-800">Cơ sở lưu trú</a>@endif</nav></aside>
-<main class="flex-1 p-4 md:p-8">@if(session('status'))<div class="mb-5 rounded-lg border border-green-200 bg-green-50 p-3 text-green-800">{{ session('status') }}</div>@endif @yield('content')</main></div></body></html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        @yield('title', 'Dashboard') | Manifest Stay PMS
+    </title>
+
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+    ])
+</head>
+
+<body class="min-h-screen bg-slate-100 text-slate-900">
+
+<div class="flex min-h-screen">
+
+    @include('layouts.partials.sidebar')
+
+    <div class="flex min-w-0 flex-1 flex-col">
+
+        @include('layouts.partials.topbar')
+
+        <main class="flex-1 overflow-y-auto p-8">
+
+            @include('layouts.partials.flash')
+
+            @yield('content')
+
+        </main>
+
+    </div>
+
+</div>
+
+</body>
+</html>

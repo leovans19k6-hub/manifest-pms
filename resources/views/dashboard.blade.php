@@ -1,49 +1,181 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Manifest Stay PMS</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-50 min-h-screen">
+@extends('layouts.admin')
 
-    <div class="p-8">
-        <!-- Header -->
-        <header class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-800">Tổng quan hệ thống</h1>
-            <p class="text-gray-500">Chào mừng trở lại, Trung Hiếu</p>
-        </header>
+@section('title', 'Dashboard')
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <!-- Occupancy Card -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Công suất phòng (Occupancy)</h3>
-                    <span class="text-blue-500 bg-blue-50 p-2 rounded-lg">📊</span>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-bold text-gray-800">78%</span>
-                    <span class="text-green-500 text-sm font-medium">+2.5%</span>
-                </div>
-            </div>
+@section('content')
 
-            <!-- Revenue Card -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Doanh thu (Revenue)</h3>
-                    <span class="text-emerald-500 bg-emerald-50 p-2 rounded-lg">💰</span>
-                </div>
-                <div class="flex items-baseline gap-2">
-                    <span class="text-4xl font-bold text-gray-800">4.2 tỷ</span>
-                    <span class="text-gray-400 text-sm">VND</span>
-                </div>
-            </div>
+<div class="space-y-8">
 
-        </div>
+    <div class="flex items-center justify-between">
+
+        <x-page-header
+		title="Tổng quan hệ thống"
+		:description="'Chào mừng trở lại, ' . auth()->user()?->name"
+		>
+
+		<x-slot:actions>
+
+			<x-button variant="secondary">
+				+ Property
+			</x-button>
+
+			<x-button>
+				+ Reservation
+			</x-button>
+
+		</x-slot:actions>
+
+	</x-page-header>
+
     </div>
 
-</body>
-</html>
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+        <x-stats-card
+            title="Occupancy"
+            value="78%"
+            change="+2.5%"
+            icon="🏨"
+        />
+
+        <x-stats-card
+            title="Revenue"
+            value="4.2"
+            suffix="Tỷ"
+            icon="💰"
+        />
+
+        <x-stats-card
+            title="Reservations"
+            value="126"
+            change="+18"
+            icon="📅"
+        />
+
+        <x-stats-card
+            title="Available Units"
+            value="42"
+            icon="🛏"
+        />
+
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+
+			<x-card class="lg:col-span-2">
+
+				<x-section-title
+					title="Recent Activity"
+				/>
+
+				<div class="space-y-4">
+
+					<div class="flex items-center justify-between">
+
+						<div>
+
+							<div class="font-medium">
+								Reservation RES-00025 created
+							</div>
+
+							<div class="text-sm text-slate-500">
+								5 minutes ago
+							</div>
+
+						</div>
+
+						<x-badge color="emerald">
+							New
+						</x-badge>
+
+					</div>
+
+					<div class="flex items-center justify-between">
+
+						<div>
+
+							<div class="font-medium">
+								Villa Harbor updated
+							</div>
+
+							<div class="text-sm text-slate-500">
+								20 minutes ago
+							</div>
+
+						</div>
+
+						<x-badge color="blue">
+							Update
+						</x-badge>
+
+					</div>
+
+					<div class="flex items-center justify-between">
+
+						<div>
+
+							<div class="font-medium">
+								Unit A-120 archived
+							</div>
+
+							<div class="text-sm text-slate-500">
+								1 hour ago
+							</div>
+
+						</div>
+
+						<x-badge color="amber">
+							Archive
+						</x-badge>
+
+					</div>
+
+				</div>
+
+			</x-card>
+
+			<x-card>
+
+		<x-section-title
+			title="Quick Actions"
+		/>
+
+		<div class="grid gap-3">
+
+			<x-button
+				variant="secondary"
+				class="justify-start"
+			>
+				➕ New Property
+			</x-button>
+
+			<x-button
+				variant="secondary"
+				class="justify-start"
+			>
+				🛏 New Unit
+			</x-button>
+
+			<x-button
+				variant="secondary"
+				class="justify-start"
+			>
+				📅 New Reservation
+			</x-button>
+
+			<x-button
+				variant="secondary"
+				class="justify-start"
+			>
+				📊 View Reports
+			</x-button>
+
+		</div>
+
+	</x-card>
+
+    </div>
+
+</div>
+
+@endsection

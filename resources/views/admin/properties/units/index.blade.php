@@ -128,28 +128,21 @@
 
         <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             @if ($units->isEmpty())
-                <div class="px-6 py-12 text-center">
-                    <h2 class="text-base font-semibold text-slate-900">
-                        <x-empty-state
-							title="No units found"
-							description="Create your first unit for this property."
-						>
-							@if($abilities['create'])
-								<a href="{{ route('admin.properties.units.create',$property) }}">
-									<x-button>
-										+ Create Unit
-									</x-button>
-								</a>
-							@endif
-						</x-empty-state>
-                    </h2>
-
-                    <p class="mt-2 text-sm text-slate-500">
-                        Create the first unit for this property.
-                    </p>
-                </div>
+                <x-empty-state
+					title="No units found"
+					description="Create your first unit for this property."
+				>
+					@if ($abilities['create'])
+						<a href="{{ route('admin.properties.units.create', $property) }}">
+							<x-button>
+								+ Create Unit
+							</x-button>
+						</a>
+					@endif
+				</x-empty-state>
             @else
                 <div class="overflow-x-auto">
+					{{-- Sprint 010: Availability Calendar column will be inserted here.--}}
                     <table class="min-w-full divide-y divide-slate-200">
                         <thead class="bg-slate-50">
                             <tr>
@@ -227,7 +220,7 @@
 										{{ $unit->updated_at?->diffForHumans() }}
 									</td>
                                     <td class="px-6 py-4">
-                                        <div class="flex flex-wrap justify-end gap-2">
+                                        <div class="flex flex-wrap justify-end gap-2 whitespace-nowrap">
                                             @if ($abilities['update'])
                                                 <a
                                                     href="{{ route('admin.units.edit', $unit) }}"

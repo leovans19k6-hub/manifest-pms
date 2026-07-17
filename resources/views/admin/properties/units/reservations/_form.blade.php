@@ -20,15 +20,13 @@
 			Reservation Code
 		</label>
 
-		<input
-			id="code"
+		<x-form.input
 			name="code"
-			type="text"
+			label="Reservation Code"
 			maxlength="50"
 			required
-			value="{{ old('code', $reservation->code ?? '') }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			:value="$reservation->code ?? ''"
+		/>
 
 		@error('code')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -40,14 +38,12 @@
 			Guest Name
 		</label>
 
-		<input
-			id="guest_name"
+		<x-form.input
 			name="guest_name"
-			type="text"
+			label="Guest Name"
 			required
-			value="{{ old('guest_name', $reservation->guest_name ?? '') }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			:value="$reservation->guest_name ?? ''"
+		/>
 
 		@error('guest_name')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -59,13 +55,11 @@
 			Phone
 		</label>
 
-		<input
-			id="guest_phone"
+		<x-form.input
 			name="guest_phone"
-			type="text"
-			value="{{ old('guest_phone', $reservation->guest_phone ?? '') }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			label="Phone"
+			:value="$reservation->guest_phone ?? ''"
+		/>
 
 		@error('guest_phone')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -77,13 +71,12 @@
 			Email
 		</label>
 
-		<input
-			id="guest_email"
+		<x-form.input
 			name="guest_email"
+			label="Email"
 			type="email"
-			value="{{ old('guest_email', $reservation->guest_email ?? '') }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			:value="$reservation->guest_email ?? ''"
+		/>
 
 		@error('guest_email')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -95,10 +88,9 @@
 			Status
 		</label>
 
-		<select
-			id="status"
+		<x-form.select
 			name="status"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
+			label="Status"
 		>
 			@foreach ($statuses as $status)
 				<option
@@ -108,7 +100,7 @@
 					{{ ucfirst($status->value) }}
 				</option>
 			@endforeach
-		</select>
+		</x-form.select>
 
 		@error('status')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -119,10 +111,9 @@
 			Source
 		</label>
 
-		<select
-			id="source"
+		<x-form.select
 			name="source"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
+			label="Source"
 		>
 			@foreach ($sources as $source)
 				<option
@@ -132,7 +123,7 @@
 					{{ ucfirst($source->value) }}
 				</option>
 			@endforeach
-		</select>
+		</x-form.select>
 
 		@error('source')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -143,14 +134,13 @@
 			Adults
 		</label>
 
-		<input
-			id="adults"
+		<x-form.input
 			name="adults"
+			label="Adults"
 			type="number"
 			min="1"
-			value="{{ old('adults', $reservation->adults ?? 2) }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			:value="$reservation->adults ?? 2"
+		/>
 
 		@error('adults')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -161,14 +151,13 @@
 			Children
 		</label>
 
-		<input
-			id="children"
+		<x-form.input
 			name="children"
+			label="Children"
 			type="number"
 			min="0"
-			value="{{ old('children', $reservation->children ?? 0) }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			:value="$reservation->children ?? 0"
+		/>
 
 		@error('children')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -179,14 +168,13 @@
 			Check In
 		</label>
 
-		<input
-			id="check_in"
+		<x-form.input
 			name="check_in"
+			label="Check In"
 			type="date"
 			required
-			value="{{ old('check_in', isset($reservation) ? $reservation->check_in->format('Y-m-d') : '') }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			:value="isset($reservation) ? $reservation->check_in->format('Y-m-d') : ''"
+		/>
 
 		@error('check_in')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -197,14 +185,13 @@
 			Check Out
 		</label>
 
-		<input
-			id="check_out"
+		<x-form.input
 			name="check_out"
+			label="Check Out"
 			type="date"
 			required
-			value="{{ old('check_out', isset($reservation) ? $reservation->check_out->format('Y-m-d') : '') }}"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>
+			:value="isset($reservation) ? $reservation->check_out->format('Y-m-d') : ''"
+		/>
 
 		@error('check_out')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -215,12 +202,12 @@
 			Notes
 		</label>
 
-		<textarea
-			id="notes"
+		<x-form.textarea
 			name="notes"
+			label="Notes"
 			rows="5"
-			class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm"
-		>{{ old('notes', $reservation->notes ?? '') }}</textarea>
+			:value="$reservation->notes ?? ''"
+		/>
 
 		@error('notes')
 			<p class="mt-1 text-sm text-red-600">{{ $message }}</p>

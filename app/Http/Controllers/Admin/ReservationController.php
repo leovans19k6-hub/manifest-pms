@@ -135,12 +135,11 @@ class ReservationController extends Controller
 				[
 					'unit'  => $unitModel,
 					'month' => $reservation->check_in->format('Y-m'),
+					'highlight' => $reservation->id,
 				],
 			)
-			->with(
-				'status',
-				'Reservation created successfully.',
-			);
+			->with('status', 'Reservation created successfully.')
+			->with('highlightReservation', $reservation->id);
     }
 
     public function edit(

@@ -51,6 +51,7 @@ final class AvailabilityController extends Controller
 				'month' => $month,
 				'previousMonth' => $month->subMonth(),
 				'nextMonth' => $month->addMonth(),
+				'highlightReservation' => $request->string('highlight')->toString(),
 			],
 		);
     }

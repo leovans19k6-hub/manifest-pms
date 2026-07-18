@@ -1,3 +1,9 @@
+<?php
+
+namespace Domain\Foundation\Calendar\DTO;
+
+use Illuminate\Support\Collection;
+
 final readonly class CalendarWeek
 {
     /**
@@ -5,5 +11,6 @@ final readonly class CalendarWeek
      */
     public function __construct(
         public Collection $days,
-    ) {}
+    ) {
+    }
 }

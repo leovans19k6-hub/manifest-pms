@@ -31,24 +31,28 @@ final class AvailabilityController extends Controller
             ->find($membership, $unit)
             ->loadMissing('property');
 
-        $start = $request->filled('start')
-            ? CarbonImmutable::parse(
-                $request->string('start')
-            )->startOfDay()
-            : CarbonImmutable::today();
+        $month = $request->filled('month')
+			? CarbonImmutable::parse(
+				$request->string('month')
+			)->startOfMonth()
+			: CarbonImmutable::today()->startOfMonth();
 
-        return view(
-            'admin.properties.units.availability.index',
-            [
-                'unit' => $unitModel,
-                'timeline' => $availability->timeline(
-                    $membership,
-                    $unitModel,
-                    $start,
-                ),
-                'start' => $start,
-            ],
-        );
+		$calendar = $availability->calendar(
+			$membership,
+			$unitModel,
+			$month,
+		);
+
+		return view(
+			'admin.properties.units.availability.index',
+			[
+				'unit' => $unitModel,
+				'calendar' => $calendar,
+				'month' => $month,
+				'previousMonth' => $month->subMonth(),
+				'nextMonth' => $month->addMonth(),
+			],
+		);
     }
 
     private function membership(

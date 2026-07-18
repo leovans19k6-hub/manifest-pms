@@ -105,7 +105,7 @@ class ReservationController extends Controller
 				: null,
 		]);
     }
-
+	
     public function store(
         StoreReservationRequest $request,
         string $unit,
@@ -114,7 +114,6 @@ class ReservationController extends Controller
         CreateReservationAction $action,
     ): RedirectResponse {
         $membership = $this->membership($request);
-
         $unitModel = $units->find(
             $membership,
             $unit,
@@ -130,15 +129,13 @@ class ReservationController extends Controller
             ),
         );
 
-        return redirect()
-			->route(
-				'admin.reservations.edit',
-				$reservation,
-			)
-            ->with(
-                'status',
-                'Reservation created successfully.',
-            );
+        return redirect()->route(
+				'admin.units.availability.index',
+				[
+					'unit' => $unitModel,
+					'month' => $reservation->check_in->format('Y-m'),
+				]
+			);
     }
 
     public function edit(

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Domain\Reservation\Enums\ReservationSource;
 use Domain\Reservation\Enums\ReservationStatus;
 use Domain\Reservation\Models\Reservation;
+use Domain\Inventory\Models\Unit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
@@ -47,4 +48,18 @@ class ReservationFactory extends Factory
             'metadata' => null,
         ];
     }
+	public function forUnit(Unit $unit): static
+	{
+		return $this->state(fn () => [
+			'organization_id' => $unit->organization_id,
+			'property_id' => $unit->property_id,
+			'unit_id' => $unit->id,
+		]);
+	}
+	public function status(ReservationStatus $status): static
+	{
+		return $this->state(fn () => [
+			'status' => $status,
+		]);
+	}
 }

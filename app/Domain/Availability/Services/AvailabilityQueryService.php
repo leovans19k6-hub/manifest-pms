@@ -14,6 +14,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Domain\Foundation\Calendar\CalendarBuilder;
 use Domain\Foundation\Calendar\DTO\CalendarMonth;
+use Domain\Availability\Enums\AvailabilityStatus;
 
 final class AvailabilityQueryService
 {
@@ -71,29 +72,29 @@ final class AvailabilityQueryService
 					$status = match ($reservation->status) {
 						ReservationStatus::Reserved,
 						ReservationStatus::Confirmed
-							=> AvailabilityDay::RESERVED,
+							=> AvailabilityStatus::Reserved,
 
 						ReservationStatus::CheckedIn
-							=> AvailabilityDay::CHECKED_IN,
+							=> AvailabilityStatus::CheckedIn,
 
 						ReservationStatus::Cancelled,
 						ReservationStatus::CheckedOut,
 						ReservationStatus::NoShow
-							=> AvailabilityDay::AVAILABLE,
+							=> AvailabilityStatus::Available,
 					};
 
 					return new AvailabilityDay(
 						date: $date,
 						status: $status,
-						reservationCode: $status === AvailabilityDay::AVAILABLE
+						reservation: $status === AvailabilityStatus::Available
 							? null
-							: $reservation->code,
+							: $reservation,
 					);
 				}
 
                 return new AvailabilityDay(
                     date: $date,
-                    status: AvailabilityDay::AVAILABLE,
+                    status: AvailabilityStatus::Available,
                 );
             });
     }

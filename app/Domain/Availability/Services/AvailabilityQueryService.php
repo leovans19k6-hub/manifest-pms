@@ -9,8 +9,11 @@ use Domain\Foundation\Services\AuthorizationService;
 use Domain\Foundation\Support\CurrentOrganization;
 use Domain\Inventory\Models\Unit;
 use Domain\Reservation\Models\Reservation;
+use Domain\Reservation\Enums\ReservationStatus;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
+use Domain\Foundation\Calendar\CalendarBuilder;
+use Domain\Foundation\Calendar\DTO\CalendarMonth;
 
 final class AvailabilityQueryService
 {
@@ -64,12 +67,29 @@ final class AvailabilityQueryService
                 });
 
                 if ($reservation instanceof Reservation) {
-                    return new AvailabilityDay(
-                        date: $date,
-                        status: AvailabilityDay::RESERVED,
-                        reservationCode: $reservation->code,
-                    );
-                }
+
+					$status = match ($reservation->status) {
+						ReservationStatus::Reserved,
+						ReservationStatus::Confirmed
+							=> AvailabilityDay::RESERVED,
+
+						ReservationStatus::CheckedIn
+							=> AvailabilityDay::CHECKED_IN,
+
+						ReservationStatus::Cancelled,
+						ReservationStatus::CheckedOut,
+						ReservationStatus::NoShow
+							=> AvailabilityDay::AVAILABLE,
+					};
+
+					return new AvailabilityDay(
+						date: $date,
+						status: $status,
+						reservationCode: $status === AvailabilityDay::AVAILABLE
+							? null
+							: $reservation->code,
+					);
+				}
 
                 return new AvailabilityDay(
                     date: $date,
@@ -77,6 +97,59 @@ final class AvailabilityQueryService
                 );
             });
     }
+
+	/**
+	 * Build monthly calendar structure for a unit.
+	 */
+	public function calendar(
+		OrganizationUser $membership,
+		Unit $unit,
+		CarbonImmutable $month,
+	): CalendarMonth {
+		$this->authorize($membership);
+
+		$organizationId = $this->requireOrganizationId();
+
+		if (
+			$membership->organization_id !== $organizationId
+			|| $unit->organization_id !== $organizationId
+		) {
+			throw ValidationException::withMessages([
+				'unit' => 'Unit does not belong to the current organization.',
+			]);
+		}
+
+		$calendar = CalendarBuilder::build(
+			$month->startOfMonth(),
+		);
+
+		/*
+		 * Load reservations overlapping the visible calendar range.
+		 * This prepares data for the calendar UI without coupling the
+		 * Calendar domain model to Availability.
+		 */
+		Reservation::query()
+			->where('organization_id', $organizationId)
+			->where('unit_id', $unit->id)
+			->where(
+				'check_in',
+				'<',
+				$month
+					->endOfMonth()
+					->endOfWeek(CarbonImmutable::SUNDAY),
+			)
+			->where(
+				'check_out',
+				'>',
+				$month
+					->startOfMonth()
+					->startOfWeek(CarbonImmutable::MONDAY),
+			)
+			->orderBy('check_in')
+			->get();
+
+		return $calendar;
+	}
 
     private function authorize(
         OrganizationUser $membership,

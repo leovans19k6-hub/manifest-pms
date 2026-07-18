@@ -4,6 +4,10 @@ namespace Domain\Availability\Services;
 
 use Carbon\CarbonImmutable;
 use Domain\Availability\DTO\AvailabilityDay;
+use Domain\Availability\DTO\AvailabilityCalendarDay;
+use Domain\Availability\DTO\AvailabilityCalendarMonth;
+use Domain\Availability\DTO\AvailabilityCalendarWeek;
+use Domain\Foundation\Calendar\DTO\CalendarDay;
 use Domain\Foundation\Models\OrganizationUser;
 use Domain\Foundation\Services\AuthorizationService;
 use Domain\Foundation\Support\CurrentOrganization;
@@ -13,7 +17,6 @@ use Domain\Reservation\Enums\ReservationStatus;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Domain\Foundation\Calendar\CalendarBuilder;
-use Domain\Foundation\Calendar\DTO\CalendarMonth;
 use Domain\Availability\Enums\AvailabilityStatus;
 
 final class AvailabilityQueryService
@@ -106,7 +109,7 @@ final class AvailabilityQueryService
 		OrganizationUser $membership,
 		Unit $unit,
 		CarbonImmutable $month,
-	): CalendarMonth {
+	): AvailabilityCalendarMonth {
 		$this->authorize($membership);
 
 		$organizationId = $this->requireOrganizationId();
@@ -124,32 +127,68 @@ final class AvailabilityQueryService
 			$month->startOfMonth(),
 		);
 
-		/*
-		 * Load reservations overlapping the visible calendar range.
-		 * This prepares data for the calendar UI without coupling the
-		 * Calendar domain model to Availability.
-		 */
-		Reservation::query()
+		$visibleStart = $month
+			->startOfMonth()
+			->startOfWeek(CarbonImmutable::MONDAY);
+
+		$visibleEnd = $month
+			->endOfMonth()
+			->endOfWeek(CarbonImmutable::SUNDAY);
+
+		$reservations = Reservation::query()
 			->where('organization_id', $organizationId)
 			->where('unit_id', $unit->id)
-			->where(
-				'check_in',
-				'<',
-				$month
-					->endOfMonth()
-					->endOfWeek(CarbonImmutable::SUNDAY),
-			)
-			->where(
-				'check_out',
-				'>',
-				$month
-					->startOfMonth()
-					->startOfWeek(CarbonImmutable::MONDAY),
-			)
+			->where('check_in', '<', $visibleEnd)
+			->where('check_out', '>', $visibleStart)
 			->orderBy('check_in')
 			->get();
 
-		return $calendar;
+		$weeks = $calendar->weeks->map(function ($week) use ($reservations) {
+
+			$days = $week->days->map(function (CalendarDay $day) use ($reservations) {
+
+				/** @var Reservation|null $reservation */
+				$reservation = $reservations->first(function (Reservation $reservation) use ($day) {
+					return $reservation->check_in->startOfDay() <= $day->date
+						&& $reservation->check_out->startOfDay() > $day->date;
+				});
+
+				if (! $reservation) {
+					return new AvailabilityCalendarDay(
+						day: $day,
+						status: AvailabilityStatus::Available,
+					);
+				}
+
+				$status = match ($reservation->status) {
+					ReservationStatus::Reserved,
+					ReservationStatus::Confirmed => AvailabilityStatus::Reserved,
+
+					ReservationStatus::CheckedIn => AvailabilityStatus::CheckedIn,
+
+					ReservationStatus::Cancelled,
+					ReservationStatus::CheckedOut,
+					ReservationStatus::NoShow => AvailabilityStatus::Available,
+				};
+
+				return new AvailabilityCalendarDay(
+					day: $day,
+					status: $status,
+					reservation: $status === AvailabilityStatus::Available
+						? null
+						: $reservation,
+				);
+			});
+
+			return new AvailabilityCalendarWeek(
+				days: $days,
+			);
+		});
+
+		return new AvailabilityCalendarMonth(
+			month: $calendar->month,
+			weeks: $weeks,
+		);
 	}
 
     private function authorize(

@@ -97,6 +97,9 @@ class ReservationController extends Controller
 				$membership,
 				$unit,
 			),
+			'checkIn' => $request->filled('check_in')
+				? \Illuminate\Support\Carbon::parse($request->string('check_in'))
+				: null,
 		]);
     }
 

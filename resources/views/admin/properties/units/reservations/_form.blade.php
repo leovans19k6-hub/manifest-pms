@@ -173,7 +173,12 @@
 			label="Check In"
 			type="date"
 			required
-			:value="isset($reservation) ? $reservation->check_in->format('Y-m-d') : ''"
+			:value="old(
+				'check_in',
+				isset($reservation)
+					? $reservation->check_in->format('Y-m-d')
+					: optional($checkIn)->format('Y-m-d')
+			)"
 		/>
 
 		@error('check_in')

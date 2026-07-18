@@ -41,7 +41,7 @@
 
     </div>
 
-    @if($timeline->isEmpty())
+    @if($calendar->weeks->isEmpty())
 
         <x-empty-state
             title="No availability"
@@ -50,77 +50,17 @@
 
     @else
 
-        <x-table>
+        <div class="rounded-lg border border-slate-200 bg-white p-6">
 
-            <x-slot:head>
+			<h2 class="text-lg font-semibold text-slate-900">
+				{{ $month->format('F Y') }}
+			</h2>
 
-                <tr>
+			<p class="mt-2 text-sm text-slate-500">
+				Calendar rendering will be added in the next commit.
+			</p>
 
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Date
-                    </th>
-
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Status
-                    </th>
-
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Reservation
-                    </th>
-
-                </tr>
-
-            </x-slot:head>
-
-            <x-slot:body>
-
-                @foreach($timeline as $day)
-
-                    <tr class="hover:bg-slate-50 transition-colors">
-
-                        <td class="px-6 py-4">
-
-                            <div class="font-medium text-slate-900">
-                                {{ $day->date->format('d/m/Y') }}
-                            </div>
-
-                            <div class="text-sm text-slate-500">
-                                {{ $day->date->format('l') }}
-                            </div>
-
-                        </td>
-
-                        <td class="px-6 py-4">
-
-                            @if($day->isReserved())
-
-                                <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-700">
-                                    {{ $day->badgeLabel() }}
-                                </span>
-
-                            @else
-
-                                <span class="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-                                    {{ $day->badgeLabel() }}
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                        <td class="px-6 py-4">
-
-                            {{ $day->reservationCode ?? '-' }}
-
-                        </td>
-
-                    </tr>
-
-                @endforeach
-
-            </x-slot:body>
-
-        </x-table>
+		</div>
 
     @endif
 

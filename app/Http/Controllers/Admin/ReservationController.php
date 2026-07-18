@@ -129,12 +129,17 @@ class ReservationController extends Controller
             ),
         );
 
-        return redirect()->route(
+        return redirect()
+			->route(
 				'admin.units.availability.index',
 				[
-					'unit' => $unitModel,
+					'unit'  => $unitModel,
 					'month' => $reservation->check_in->format('Y-m'),
-				]
+				],
+			)
+			->with(
+				'status',
+				'Reservation created successfully.',
 			);
     }
 
@@ -191,15 +196,16 @@ class ReservationController extends Controller
             ),
         );
 
-        return redirect()
-            ->route(
-                'admin.units.reservations.index',
-                $updated->unit_id,
-            )
-            ->with(
-                'status',
-                'Reservation updated successfully.',
-            );
+        return redirect()->route(
+			'admin.units.availability.index',
+			[
+				'unit'  => $unitModel,
+				'month' => $reservation->check_in->format('Y-m'),
+			]
+		)->with(
+			'status',
+			'Reservation created successfully.',
+		);
     }
 
     public function destroy(

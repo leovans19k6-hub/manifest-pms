@@ -195,7 +195,12 @@
 			label="Check Out"
 			type="date"
 			required
-			:value="isset($reservation) ? $reservation->check_out->format('Y-m-d') : ''"
+			:value="old(
+				'check_out',
+				isset($reservation)
+					? $reservation->check_out->format('Y-m-d')
+					: optional($checkOut)->format('Y-m-d')
+			)"
 		/>
 
 		@error('check_out')

@@ -155,19 +155,18 @@
 
 												@if($day->reservation)
 
-													<div class="mt-2 rounded-md p-2
-														{{ $day->status === \Domain\Availability\Enums\AvailabilityStatus::Reserved
-															? 'bg-amber-100 border border-amber-300'
-															: 'bg-emerald-100 border border-emerald-300' }}">
+													<div class="mt-2 rounded border border-amber-200 bg-amber-50 p-2">
 
-														<div class="text-xs font-semibold">
+														<div class="truncate text-xs font-semibold">
 															{{ $day->reservation->code }}
 														</div>
 
-														<div class="mt-1 text-[11px]">
+														<div class="truncate text-[11px] text-slate-600">
+															{{ $day->reservation->guest_name }}
+														</div>
 
+														<div class="mt-1 text-[10px] font-medium text-slate-500">
 															{{ $day->badgeLabel() }}
-
 														</div>
 
 													</div>

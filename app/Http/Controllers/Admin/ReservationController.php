@@ -125,10 +125,10 @@ class ReservationController extends Controller
         );
 
         return redirect()
-            ->route(
-                'admin.units.reservations.edit',
-                $reservation,
-            )
+			->route(
+				'admin.reservations.edit',
+				$reservation,
+			)
             ->with(
                 'status',
                 'Reservation created successfully.',

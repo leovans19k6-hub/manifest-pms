@@ -3,28 +3,28 @@
 namespace Domain\Availability\DTO;
 
 use Domain\Foundation\Calendar\DTO\CalendarDay;
+use Domain\Availability\Enums\AvailabilityStatus;
 
 final readonly class AvailabilityCalendarDay
 {
     public function __construct(
         public CalendarDay $day,
-        public string $status,
-        public ?string $reservationCode = null,
+		public AvailabilityStatus $status,
+		public ?string $reservationCode = null,
     ) {
     }
 
     public function isReserved(): bool
     {
-        return $this->status !== AvailabilityDay::AVAILABLE;
+        return $this->status !== AvailabilityStatus::Available;
     }
 
     public function badgeLabel(): string
     {
         return match ($this->status) {
-            AvailabilityDay::AVAILABLE => 'Available',
-            AvailabilityDay::RESERVED => 'Reserved',
-            AvailabilityDay::CHECKED_IN => 'Checked In',
-            default => 'Unknown',
-        };
+			AvailabilityStatus::Available => 'Available',
+			AvailabilityStatus::Reserved => 'Reserved',
+			AvailabilityStatus::CheckedIn => 'Checked In',
+		};
     }
 }

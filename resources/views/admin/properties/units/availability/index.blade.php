@@ -174,6 +174,16 @@
 
 													</div>
 													</a>
+													@else
+														<a
+															href="{{ route('admin.units.reservations.create', [
+																'unit' => $unit,
+																'check_in' => $day->day->date->toDateString(),
+															]) }}"
+															class="block h-16 rounded hover:bg-slate-100 transition-colors"
+															title="Create reservation"
+														>
+														</a>
 												@endif
 
 											</div>

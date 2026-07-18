@@ -80,26 +80,323 @@ class AvailabilityQueryServiceTest extends TestCase
 
     public function test_confirmed_reservation_marks_days_as_reserved(): void
     {
+		[$user, $organization, $membership] = $this->principal([
+			'reservation.reservations.view',
+		]);
+
+		app(CurrentOrganization::class)->set($organization);
+
+		$property = PropertyFactory::new()->create([
+			'organization_id' => $organization->id,
+		]);
+
+		$unit = UnitFactory::new()->create([
+			'organization_id' => $organization->id,
+			'property_id' => $property->id,
+		]);
+
+		$start = CarbonImmutable::parse('2026-07-01');
+
+		ReservationFactory::new()
+			->forUnit($unit)
+			->status(ReservationStatus::Confirmed)
+			->create([
+				'organization_id' => $organization->id,
+				'property_id' => $property->id,
+				'check_in' => $start->addDay(),
+				'check_out' => $start->addDays(3),
+				'code' => 'RES-0001',
+			]);
+
+		$days = app(AvailabilityQueryService::class)->timeline(
+			$membership,
+			$unit,
+			$start,
+			5,
+		);
+
+		$this->assertCount(5, $days);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[0]->status,
+		);
+
+		$this->assertSame(
+			AvailabilityStatus::Reserved,
+			$days[1]->status,
+		);
+
+		$this->assertSame(
+			'RES-0001',
+			$days[1]->reservation?->code,
+		);
     }
 
     public function test_checked_in_reservation_marks_days_as_checked_in(): void
     {
+		[$user, $organization, $membership] = $this->principal([
+			'reservation.reservations.view',
+		]);
+
+		app(CurrentOrganization::class)->set($organization);
+
+		$property = PropertyFactory::new()->create([
+			'organization_id' => $organization->id,
+		]);
+
+		$unit = UnitFactory::new()->create([
+			'organization_id' => $organization->id,
+			'property_id' => $property->id,
+		]);
+
+		$start = CarbonImmutable::parse('2026-07-01');
+
+		ReservationFactory::new()
+			->forUnit($unit)
+			->status(ReservationStatus::CheckedIn)
+			->create([
+				'organization_id' => $organization->id,
+				'property_id' => $property->id,
+				'check_in' => $start->addDay(),
+				'check_out' => $start->addDays(3),
+				'code' => 'RES-0001',
+			]);
+
+		$days = app(AvailabilityQueryService::class)->timeline(
+			$membership,
+			$unit,
+			$start,
+			5,
+		);
+
+		$this->assertCount(5, $days);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[0]->status,
+		);
+
+		$this->assertSame(
+			AvailabilityStatus::CheckedIn,
+			$days[1]->status,
+		);
+
+		$this->assertSame(
+			'RES-0001',
+			$days[1]->reservation?->code,
+		);
     }
 
     public function test_cancelled_reservation_does_not_occupy_room(): void
     {
+		[$user, $organization, $membership] = $this->principal([
+			'reservation.reservations.view',
+		]);
+
+		app(CurrentOrganization::class)->set($organization);
+
+		$property = PropertyFactory::new()->create([
+			'organization_id' => $organization->id,
+		]);
+
+		$unit = UnitFactory::new()->create([
+			'organization_id' => $organization->id,
+			'property_id' => $property->id,
+		]);
+
+		$start = CarbonImmutable::parse('2026-07-01');
+
+		ReservationFactory::new()
+			->forUnit($unit)
+			->status(ReservationStatus::Cancelled)
+			->create([
+				'organization_id' => $organization->id,
+				'property_id' => $property->id,
+				'check_in' => $start->addDay(),
+				'check_out' => $start->addDays(3),
+				'code' => 'RES-0001',
+			]);
+
+		$days = app(AvailabilityQueryService::class)->timeline(
+			$membership,
+			$unit,
+			$start,
+			5,
+		);
+
+		$this->assertCount(5, $days);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[0]->status,
+		);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[1]->status,
+		);
+
+		$this->assertNull($days[1]->reservation);
     }
 
     public function test_checked_out_reservation_does_not_occupy_room(): void
     {
+		[$user, $organization, $membership] = $this->principal([
+			'reservation.reservations.view',
+		]);
+
+		app(CurrentOrganization::class)->set($organization);
+
+		$property = PropertyFactory::new()->create([
+			'organization_id' => $organization->id,
+		]);
+
+		$unit = UnitFactory::new()->create([
+			'organization_id' => $organization->id,
+			'property_id' => $property->id,
+		]);
+
+		$start = CarbonImmutable::parse('2026-07-01');
+
+		ReservationFactory::new()
+			->forUnit($unit)
+			->status(ReservationStatus::CheckedOut)
+			->create([
+				'organization_id' => $organization->id,
+				'property_id' => $property->id,
+				'check_in' => $start->addDay(),
+				'check_out' => $start->addDays(3),
+				'code' => 'RES-0001',
+			]);
+
+		$days = app(AvailabilityQueryService::class)->timeline(
+			$membership,
+			$unit,
+			$start,
+			5,
+		);
+
+		$this->assertCount(5, $days);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[0]->status,
+		);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[1]->status,
+		);
+
+		$this->assertNull($days[1]->reservation);
     }
 
     public function test_no_show_reservation_does_not_occupy_room(): void
     {
+		[$user, $organization, $membership] = $this->principal([
+			'reservation.reservations.view',
+		]);
+
+		app(CurrentOrganization::class)->set($organization);
+
+		$property = PropertyFactory::new()->create([
+			'organization_id' => $organization->id,
+		]);
+
+		$unit = UnitFactory::new()->create([
+			'organization_id' => $organization->id,
+			'property_id' => $property->id,
+		]);
+
+		$start = CarbonImmutable::parse('2026-07-01');
+
+		ReservationFactory::new()
+			->forUnit($unit)
+			->status(ReservationStatus::NoShow)
+			->create([
+				'organization_id' => $organization->id,
+				'property_id' => $property->id,
+				'check_in' => $start->addDay(),
+				'check_out' => $start->addDays(3),
+				'code' => 'RES-0001',
+			]);
+
+		$days = app(AvailabilityQueryService::class)->timeline(
+			$membership,
+			$unit,
+			$start,
+			5,
+		);
+
+		$this->assertCount(5, $days);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[0]->status,
+		);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[1]->status,
+		);
+
+		$this->assertNull($days[1]->reservation);
     }
 
     public function test_reservations_outside_requested_period_are_ignored(): void
     {
+		[$user, $organization, $membership] = $this->principal([
+			'reservation.reservations.view',
+		]);
+
+		app(CurrentOrganization::class)->set($organization);
+
+		$property = PropertyFactory::new()->create([
+			'organization_id' => $organization->id,
+		]);
+
+		$unit = UnitFactory::new()->create([
+			'organization_id' => $organization->id,
+			'property_id' => $property->id,
+		]);
+
+		$start = CarbonImmutable::parse('2026-07-01');
+
+		ReservationFactory::new()
+			->forUnit($unit)
+			->status(ReservationStatus::CheckedIn)
+			->create([
+				'organization_id' => $organization->id,
+				'property_id' => $property->id,
+				'check_in' => $start->addDay(),
+				'check_out' => $start->addDays(3),
+				'code' => 'RES-0001',
+			]);
+
+		$days = app(AvailabilityQueryService::class)->timeline(
+			$membership,
+			$unit,
+			$start,
+			5,
+		);
+
+		$this->assertCount(5, $days);
+
+		$this->assertSame(
+			AvailabilityStatus::Available,
+			$days[0]->status,
+		);
+
+		$this->assertSame(
+			AvailabilityStatus::CheckedIn,
+			$days[1]->status,
+		);
+
+		$this->assertSame(
+			'RES-0001',
+			$days[1]->reservation?->code,
+		);
     }
 	
 	private function principal(array $codes): array

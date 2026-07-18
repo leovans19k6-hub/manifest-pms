@@ -50,15 +50,147 @@
 
     @else
 
-        <div class="rounded-lg border border-slate-200 bg-white p-6">
+        <div class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
-			<h2 class="text-lg font-semibold text-slate-900">
-				{{ $month->format('F Y') }}
-			</h2>
+			{{-- Header --}}
+			<div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
 
-			<p class="mt-2 text-sm text-slate-500">
-				Calendar rendering will be added in the next commit.
-			</p>
+				<a
+					href="{{ route('admin.units.availability.index', [
+						'unit' => $unit,
+						'month' => $previousMonth->format('Y-m'),
+					]) }}"
+					class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+				>
+					← Previous
+				</a>
+
+				<h2 class="text-xl font-semibold">
+					{{ $calendar->month->format('F Y') }}
+				</h2>
+
+				<a
+					href="{{ route('admin.units.availability.index', [
+						'unit' => $unit,
+						'month' => $nextMonth->format('Y-m'),
+					]) }}"
+					class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+				>
+					Next →
+				</a>
+
+			</div>
+
+			<div class="overflow-x-auto">
+
+				<table class="w-full table-fixed border-collapse">
+
+					<thead>
+
+						<tr class="bg-slate-100">
+
+							@foreach (['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $label)
+
+								<th class="border border-slate-200 py-3 text-center text-xs text-slate-600 font-semibold">
+
+									{{ $label }}
+
+								</th>
+
+							@endforeach
+
+						</tr>
+
+					</thead>
+
+					<tbody>
+
+						@foreach($calendar->weeks as $week)
+
+							<tr>
+
+								@foreach($week->days as $day)
+
+									@php
+
+										$bg = match ($day->status) {
+
+											\Domain\Availability\Enums\AvailabilityStatus::Available => 'bg-white',
+
+											\Domain\Availability\Enums\AvailabilityStatus::Reserved => 'bg-amber-50',
+
+											\Domain\Availability\Enums\AvailabilityStatus::CheckedIn => 'bg-emerald-50',
+
+										};
+
+										$text = $day->day->inCurrentMonth
+											? 'text-slate-900'
+											: 'text-slate-400';
+
+									@endphp
+
+									<td
+										class="align-top border border-slate-200 p-2 {{ $bg }}"
+										style="height:130px;"
+									>
+
+										<div class="flex h-full flex-col">
+
+											<div class="flex justify-between items-start">
+
+												<span
+													@class([
+														'flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold',
+														'bg-blue-600 text-white' => $day->day->date->isToday(),
+														'text-slate-400' => ! $day->day->inCurrentMonth && ! $day->day->date->isToday(),
+														'text-slate-900' => $day->day->inCurrentMonth && ! $day->day->date->isToday(),
+													])
+												>
+													{{ $day->day->date->day }}
+												</span>
+
+											</div>
+
+											<div class="mt-3">
+
+												@if($day->reservation)
+
+													<div class="mt-2 rounded-md p-2
+														{{ $day->status === \Domain\Availability\Enums\AvailabilityStatus::Reserved
+															? 'bg-amber-100 border border-amber-300'
+															: 'bg-emerald-100 border border-emerald-300' }}">
+
+														<div class="text-xs font-semibold">
+															{{ $day->reservation->code }}
+														</div>
+
+														<div class="mt-1 text-[11px]">
+
+															{{ $day->badgeLabel() }}
+
+														</div>
+
+													</div>
+
+												@endif
+
+											</div>
+
+										</div>
+
+									</td>
+
+								@endforeach
+
+							</tr>
+
+						@endforeach
+
+					</tbody>
+
+				</table>
+
+			</div>
 
 		</div>
 

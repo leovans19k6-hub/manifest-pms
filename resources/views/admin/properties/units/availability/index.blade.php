@@ -154,7 +154,10 @@
 											<div class="mt-3">
 
 												@if($day->reservation)
-
+													<a
+														href="{{ route('admin.reservations.show', $day->reservation) }}"
+														class="block"
+													>
 													<div class="mt-2 rounded border border-amber-200 bg-amber-50 p-2">
 
 														<div class="truncate text-xs font-semibold">
@@ -170,7 +173,7 @@
 														</div>
 
 													</div>
-
+													</a>
 												@endif
 
 											</div>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Reservation Details')
 
@@ -193,11 +193,7 @@
         </a>
 
         <a
-            href="{{ route('admin.properties.units.reservations.edit', [
-                'property' => $property,
-                'unit' => $unit,
-                'reservation' => $reservation,
-            ]) }}"
+            href="{{ route('admin.reservations.edit', $reservation) }}"
             class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
         >
             Edit Reservation

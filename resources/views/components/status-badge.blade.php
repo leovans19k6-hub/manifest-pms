@@ -32,4 +32,6 @@
         ->title();
 @endphp
 
-<x-status-badge :status="$reservation->status" />
+<span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {{ $classes }}">
+    {{ $label }}
+</span>

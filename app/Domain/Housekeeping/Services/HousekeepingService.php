@@ -154,7 +154,9 @@ final class HousekeepingService
             || $task->organization_id !== $organizationId
         ) {
             throw ValidationException::withMessages([
-                'task' => 'Housekeeping task does not belong to the current organization.',
+                'task' => '__(
+    'housekeeping.validation.task_invalid_organization'
+)',
             ]);
         }
     }
@@ -163,7 +165,9 @@ final class HousekeepingService
     {
         return $this->organization->id()
             ?? throw ValidationException::withMessages([
-                'organization' => 'Current organization context is required.',
+                'organization' => '__(
+    'housekeeping.validation.organization_required'
+)',
             ]);
     }
 }

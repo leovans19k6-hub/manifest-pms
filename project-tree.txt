@@ -1,0 +1,6 @@
+Folder PATH listing for volume System
+Volume serial number is 000002E2 8835:9DF0
+C:\XAMPP\HTDOCS\MANIFEST-PMS\-A
+Invalid path - \XAMPP\HTDOCS\MANIFEST-PMS\-A
+No subfolders exist 
+

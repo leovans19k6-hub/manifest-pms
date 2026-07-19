@@ -16,7 +16,9 @@ final readonly class HousekeepingPlanner
         private CreateHousekeepingTaskAction $createTask,
     ) {
     }
-
+/**
+ * Create a checkout cleaning task for a reservation.
+ */
     public function createCheckoutCleaningTask(
 		Reservation $reservation,
 	): HousekeepingTask {
@@ -43,7 +45,9 @@ final readonly class HousekeepingPlanner
 			)
 		);
 	}
-	
+/**
+ * Create a stayover cleaning task.
+ */
 	public function createStayoverCleaningTask(
 		Reservation $reservation,
 	): HousekeepingTask {
@@ -68,6 +72,20 @@ final readonly class HousekeepingPlanner
 				scheduledAt: $reservation->check_in_date->addDays(...),
 				notes: 'Automatically generated for stayover cleaning.',
 			)
+		);
+	}
+/**
+ * Create an inspection task.
+ */
+	public function createInspectionTask(
+		Reservation $reservation,
+	): HousekeepingTask
+	{
+		return $this->createTaskIfNotExists(
+			reservation: $reservation,
+			type: HousekeepingTaskType::Inspection,
+			priority: 1,
+			notes: 'Automatically generated for room inspection.',
 		);
 	}
 }

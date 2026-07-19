@@ -11,14 +11,15 @@ use Domain\Reservation\Models\Reservation;
 use Domain\Reservation\Enums\ReservationStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Events\ReservationCheckedOut;
 
 final class ReservationService
 {
     public function __construct(
-        private CurrentOrganization $organization,
-        private AuthorizationService $authorization,
-        private AuditLogger $audit,
-    ) {}
+		private CurrentOrganization $organization,
+		private AuthorizationService $authorization,
+		private AuditLogger $audit,
+	) {}
 
     public function create(
         OrganizationUser $membership,
@@ -160,6 +161,7 @@ final class ReservationService
 
 			$reservation->status = ReservationStatus::CheckedOut;
 			$reservation->save();
+			ReservationCheckedOut::dispatch($reservation);
 
 			$this->audit->record(
 				'reservation.checked_out',

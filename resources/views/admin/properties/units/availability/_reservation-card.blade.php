@@ -34,8 +34,8 @@
 															:aria-expanded="openReservation === '{{ $day->reservation->id }}'"
 															aria-haspopup="menu"
 															class="rounded p-1 text-slate-400 hover:bg-white hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300"
-															title="Reservation actions"
-															aria-label="Reservation actions"
+															title="title="{{ __('availability.menu.reservation_actions') }}""
+															aria-label="aria-label="{{ __('availability.menu.reservation_actions') }}""
 														>
 															⋮
 														</button>
@@ -52,14 +52,14 @@
 																href="{{ route('admin.reservations.show', $day->reservation) }}"
 																class="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
 															>
-																View Reservation
+																{{ __('availability.menu.view') }}
 															</a>
 
 															<a
 																href="{{ route('admin.reservations.edit', $day->reservation) }}"
 																class="block px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
 															>
-																Edit Reservation
+																{{ __('availability.menu.edit') }}
 															</a>
 															
 															@if (
@@ -82,7 +82,7 @@
 																		type="submit"
 																		class="block w-full px-3 py-2 text-left text-sm text-emerald-600 hover:bg-emerald-50"
 																	>
-																		Check In
+																		{{ __('availability.menu.check_in') }}
 																	</button>
 																</form>
 															@endif
@@ -101,7 +101,7 @@
 																		type="submit"
 																		class="block w-full px-3 py-2 text-left text-sm text-sky-600 hover:bg-sky-50"
 																	>
-																		Check Out
+																		{{ __('availability.menu.check_out') }}
 																	</button>
 																</form>
 															@endif
@@ -111,7 +111,7 @@
 															<form
 																method="POST"
 																action="{{ route('admin.reservations.destroy', $day->reservation) }}"
-																onsubmit="return confirm('Cancel this reservation?');"
+																onsubmit="return confirm('{{ __('availability.menu.confirm_cancel') }}');"
 															>
 																@csrf
 																@method('DELETE')
@@ -120,7 +120,7 @@
 																	type="submit"
 																	class="block w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
 																>
-																	Cancel Reservation
+																	{{ __('availability.menu.cancel') }}
 																</button>
 															</form>
 															

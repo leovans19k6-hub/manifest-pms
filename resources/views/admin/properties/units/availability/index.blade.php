@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Availability')
+@section('title', __('availability.title.index'))
 
 @section('content')
 <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -27,14 +27,14 @@
                 href="{{ route('admin.properties.units.index', $unit->property) }}"
                 class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
             >
-                Back to Units
+                {{ __('availability.button.back_to_units') }}
             </a>
 
             <a
                 href="{{ route('admin.units.reservations.index', $unit) }}"
                 class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
             >
-                Reservations
+                {{ __('availability.button.reservations') }}
             </a>
 
         </div>
@@ -44,8 +44,8 @@
     @if($calendar->weeks->isEmpty())
 
         <x-empty-state
-            title="No availability"
-            description="No availability information found for this unit."
+            title="title="{{ __('availability.empty.title') }}""
+            description="description="{{ __('availability.empty.description') }}""
         />
 
     @else
@@ -62,7 +62,7 @@
 					]) }}"
 					class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50"
 				>
-					← Previous
+					← {{ __('availability.button.previous') }}
 				</a>
 
 				<h2 class="text-xl font-semibold">
@@ -76,7 +76,7 @@
 					]) }}"
 					class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50"
 				>
-					Next →
+					{{ __('availability.button.next') }} →
 				</a>
 
 			</div>
@@ -92,7 +92,19 @@
 
 						<tr class="bg-slate-100">
 
-							@foreach (['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as $label)
+							@php
+							$weekdays = [
+								__('availability.weekday.mon'),
+								__('availability.weekday.tue'),
+								__('availability.weekday.wed'),
+								__('availability.weekday.thu'),
+								__('availability.weekday.fri'),
+								__('availability.weekday.sat'),
+								__('availability.weekday.sun'),
+							];
+							@endphp
+
+							@foreach ($weekdays as $label)
 
 								<th class="border border-slate-200 py-3 text-center text-xs text-slate-600 font-semibold">
 
@@ -171,7 +183,7 @@
 															'check_in' => $day->day->date->toDateString(),
 														]) }}"
 														class="block h-16 rounded hover:bg-slate-100 transition-colors"
-														title="Create reservation"
+														title="title="{{ __('availability.button.create_reservation') }}""
 													>
 													</a>
 

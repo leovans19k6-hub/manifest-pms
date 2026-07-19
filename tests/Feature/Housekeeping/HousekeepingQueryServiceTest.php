@@ -139,11 +139,20 @@ class HousekeepingQueryServiceTest extends TestCase
             'organization_id' => $organization->id,
         ]);
 
-        $role->permissions()->attach(
-            PermissionFactory::new()->create([
-                'code' => 'housekeeping.tasks.view',
-            ]),
-        );
+        $permission = \Domain\Foundation\Models\Permission::query()->firstOrCreate(
+			[
+				'code' => 'housekeeping.tasks.view',
+			],
+			[
+				'name' => 'View Housekeeping Tasks',
+				'group' => 'housekeeping',
+				'description' => 'View housekeeping tasks.',
+			],
+		);
+
+		$role->permissions()->syncWithoutDetaching([
+			$permission->id,
+		]);
 
         $membership->roles()->attach($role);
 

@@ -22,6 +22,8 @@ use Domain\Reservation\Enums\ReservationStatus;
 use Domain\Reservation\Enums\ReservationSource;
 use Domain\Reservation\Application\Actions\CheckInReservationAction;
 use Domain\Reservation\Application\Commands\CheckInReservationCommand;
+use Domain\Reservation\Application\Actions\CheckOutReservationAction;
+use Domain\Reservation\Application\Commands\CheckOutReservationCommand;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -200,12 +202,12 @@ class ReservationController extends Controller
         return redirect()->route(
 			'admin.units.availability.index',
 			[
-				'unit'  => $unitModel,
-				'month' => $reservation->check_in->format('Y-m'),
-			]
+				'unit'  => $updated->unit_id,
+				'month' => $updated->check_in->format('Y-m'),
+			],
 		)->with(
 			'status',
-			'Reservation created successfully.',
+			'Reservation updated successfully.',
 		);
     }
 
@@ -277,6 +279,40 @@ class ReservationController extends Controller
 			->with(
 				'status',
 				'Guest checked in successfully.',
+			);
+	}
+	
+	public function checkOut(
+		Request $request,
+		string $reservation,
+		ReservationQueryService $queries,
+		CheckOutReservationAction $action,
+	): RedirectResponse {
+		$membership = $this->membership($request);
+
+		$reservationModel = $queries->find(
+			$membership,
+			$reservation,
+		);
+
+		$action->execute(
+			new CheckOutReservationCommand(
+				$membership,
+				$reservationModel,
+			),
+		);
+
+		return redirect()
+			->route(
+				'admin.units.availability.index',
+				[
+					'unit' => $reservationModel->unit_id,
+					'month' => $reservationModel->check_in->format('Y-m'),
+				],
+			)
+			->with(
+				'status',
+				'Guest checked out successfully.',
 			);
 	}
 

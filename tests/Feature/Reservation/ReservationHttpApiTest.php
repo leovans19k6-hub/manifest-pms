@@ -87,11 +87,14 @@ class ReservationHttpApiTest extends TestCase
         ]);
 
         ReservationFactory::new()->create([
-            'organization_id' => $organization->id,
-            'property_id' => $property->id,
-            'unit_id' => $unit->id,
-            'code' => 'RES-0002',
-        ]);
+			'organization_id' => $organization->id,
+			'property_id' => $property->id,
+			'unit_id' => $unit->id,
+			'code' => 'RES-0002',
+
+			'check_in' => now()->addDays(10),
+			'check_out' => now()->addDays(12),
+		]);
 
         $this->getJson(
             "/api/v1/units/{$unit->id}/reservations",

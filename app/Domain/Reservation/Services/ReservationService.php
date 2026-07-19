@@ -141,6 +141,36 @@ final class ReservationService
 			return $reservation->refresh();
 		});
 	}
+	
+	public function checkOut(
+		OrganizationUser $membership,
+		Reservation $reservation,
+	): Reservation {
+		$this->authorize($membership, 'reservation.reservations.update');
+		$this->assertCurrentReservation($membership, $reservation);
+
+		if ($reservation->status !== ReservationStatus::CheckedIn) {
+			throw ValidationException::withMessages([
+				'reservation' => 'Reservation cannot be checked out.',
+			]);
+		}
+
+		return DB::transaction(function () use ($reservation): Reservation {
+			$old = $reservation->getAttributes();
+
+			$reservation->status = ReservationStatus::CheckedOut;
+			$reservation->save();
+
+			$this->audit->record(
+				'reservation.checked_out',
+				$reservation,
+				$old,
+				$reservation->getAttributes(),
+			);
+
+			return $reservation->refresh();
+		});
+	}
 
     private function authorize(
         OrganizationUser $membership,

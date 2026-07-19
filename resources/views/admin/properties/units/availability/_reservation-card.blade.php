@@ -87,6 +87,25 @@
 																</form>
 															@endif
 															
+															@if (
+																$day->reservation->status ===
+																\Domain\Reservation\Enums\ReservationStatus::CheckedIn
+															)
+																<form
+																	method="POST"
+																	action="{{ route('admin.reservations.check-out', $day->reservation) }}"
+																>
+																	@csrf
+
+																	<button
+																		type="submit"
+																		class="block w-full px-3 py-2 text-left text-sm text-sky-600 hover:bg-sky-50"
+																	>
+																		Check Out
+																	</button>
+																</form>
+															@endif
+															
 															<div class="border-t border-slate-200"></div>
 															
 															<form

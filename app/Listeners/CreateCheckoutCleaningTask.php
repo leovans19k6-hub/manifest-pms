@@ -6,11 +6,40 @@ namespace App\Listeners;
 
 use App\Events\ReservationCheckedOut;
 use Domain\Housekeeping\Services\HousekeepingPlanner;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 
-final readonly class CreateCheckoutCleaningTask
+final class CreateCheckoutCleaningTask implements ShouldQueue
 {
+    use InteractsWithQueue;
+
+    /**
+     * Chỉ xử lý sau khi transaction commit.
+     */
+    public bool $afterCommit = true;
+
+    /**
+     * Retry tối đa.
+     */
+    public int $tries = 3;
+
+    /**
+     * Timeout (giây).
+     */
+    public int $timeout = 30;
+
+    /**
+     * Khoảng thời gian retry (giây).
+     *
+     * @return array<int>
+     */
+    public function backoff(): array
+    {
+        return [5, 15, 30];
+    }
+
     public function __construct(
-        private HousekeepingPlanner $planner,
+        private readonly HousekeepingPlanner $planner,
     ) {
     }
 

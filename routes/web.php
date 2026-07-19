@@ -167,6 +167,11 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
         Route::delete('/property-documents/{document}', [PropertyMediaController::class, 'destroyDocument'])
             ->middleware('permission:property.documents.delete')
             ->name('properties.media.documents.destroy');
+		
+		Route::post(
+			'/reservations/{reservation}/check-in',
+			[ReservationController::class, 'checkIn']
+		)->name('admin.reservations.check-in');
 			
 		Route::view(
 			'/ui/calendar',

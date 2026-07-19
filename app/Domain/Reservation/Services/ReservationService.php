@@ -92,6 +92,45 @@ final class ReservationService
 			);
         });
     }
+	
+	public function checkIn(
+		OrganizationUser $membership,
+		Reservation $reservation,
+	): Reservation {
+		$this->authorize($membership, 'reservation.reservations.update');
+		$this->assertCurrentReservation($membership, $reservation);
+
+		if (
+			! in_array(
+				$reservation->status,
+				[
+					ReservationStatus::Reserved,
+					ReservationStatus::Confirmed,
+				],
+				true,
+			)
+		) {
+			throw ValidationException::withMessages([
+				'reservation' => 'Reservation cannot be checked in.',
+			]);
+		}
+
+		return DB::transaction(function () use ($reservation): Reservation {
+			$old = $reservation->getAttributes();
+
+			$reservation->status = ReservationStatus::CheckedIn;
+			$reservation->save();
+
+			$this->audit->record(
+				'reservation.checked_in',
+				$reservation,
+				$old,
+				$reservation->getAttributes(),
+			);
+
+			return $reservation->refresh();
+		});
+	}
 
     private function authorize(
         OrganizationUser $membership,

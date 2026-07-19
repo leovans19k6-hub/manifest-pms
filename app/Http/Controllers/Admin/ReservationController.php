@@ -20,6 +20,8 @@ use Domain\Reservation\Models\Reservation;
 use Domain\Reservation\Services\ReservationQueryService;
 use Domain\Reservation\Enums\ReservationStatus;
 use Domain\Reservation\Enums\ReservationSource;
+use Domain\Reservation\Application\Actions\CheckInReservationAction;
+use Domain\Reservation\Application\Commands\CheckInReservationCommand;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -243,6 +245,40 @@ class ReservationController extends Controller
 				'Reservation cancelled successfully.',
 			);
     }
+	
+	public function checkIn(
+		Request $request,
+		string $reservation,
+		ReservationQueryService $queries,
+		CheckInReservationAction $action,
+	): RedirectResponse {
+		$membership = $this->membership($request);
+
+		$reservationModel = $queries->find(
+			$membership,
+			$reservation,
+		);
+
+		$action->execute(
+			new CheckInReservationCommand(
+				$membership,
+				$reservationModel,
+			),
+		);
+
+		return redirect()
+			->route(
+				'admin.units.availability.index',
+				[
+					'unit' => $reservationModel->unit_id,
+					'month' => $reservationModel->check_in->format('Y-m'),
+				],
+			)
+			->with(
+				'status',
+				'Guest checked in successfully.',
+			);
+	}
 
     private function membership(Request $request): OrganizationUser
     {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ReservationController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\AvailabilityController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\LanguageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('welcome'));
@@ -181,6 +182,9 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
 		)
 			->middleware('permission:reservation.reservations.update')
 			->name('reservations.check-out');
+		
+		Route::get('/language/{locale}', LanguageController::class)
+			->name('language.switch');
 			
 		Route::view(
 			'/ui/calendar',

@@ -221,23 +221,27 @@ class ReservationController extends Controller
         );
 
         $unitId = $reservationModel->unit_id;
+		$month = $reservationModel->check_in->format('Y-m');
 
-        $action->execute(
-            new CancelReservationCommand(
-                $membership,
-                $reservationModel,
-            ),
-        );
+		$action->execute(
+			new CancelReservationCommand(
+				$membership,
+				$reservationModel,
+			),
+		);
 
-        return redirect()
-            ->route(
-                'admin.units.reservations.index',
-                $unitId,
-            )
-            ->with(
-                'status',
-                'Reservation cancelled successfully.',
-            );
+		return redirect()
+			->route(
+				'admin.units.availability.index',
+				[
+					'unit' => $unitId,
+					'month' => $month,
+				],
+			)
+			->with(
+				'status',
+				'Reservation cancelled successfully.',
+			);
     }
 
     private function membership(Request $request): OrganizationUser

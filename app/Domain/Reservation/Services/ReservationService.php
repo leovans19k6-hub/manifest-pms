@@ -8,6 +8,7 @@ use Domain\Foundation\Services\AuthorizationService;
 use Domain\Foundation\Support\CurrentOrganization;
 use Domain\Inventory\Models\Unit;
 use Domain\Reservation\Models\Reservation;
+use Domain\Reservation\Enums\ReservationStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -80,14 +81,15 @@ final class ReservationService
         DB::transaction(function () use ($reservation): void {
             $old = $reservation->getAttributes();
 
-            $reservation->delete();
+			$reservation->status = ReservationStatus::Cancelled;
+			$reservation->save();
 
-            $this->audit->record(
-                'reservation.cancelled',
-                $reservation,
-                $old,
-                $reservation->getAttributes(),
-            );
+			$this->audit->record(
+				'reservation.cancelled',
+				$reservation,
+				$old,
+				$reservation->getAttributes(),
+			);
         });
     }
 

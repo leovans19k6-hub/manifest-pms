@@ -3,6 +3,7 @@
 namespace Domain\Reservation\Application\Validation;
 
 use Domain\Reservation\Models\Reservation;
+use Domain\Reservation\Enums\ReservationStatus;
 
 final class ReservationConflictChecker
 {
@@ -13,7 +14,11 @@ final class ReservationConflictChecker
         ?string $ignoreReservationId = null,
     ): bool {
         return Reservation::query()
-            ->where('unit_id', $unitId)
+			->where('unit_id', $unitId)
+			->whereNotIn('status', [
+				ReservationStatus::Cancelled,
+				ReservationStatus::NoShow,
+			])
             ->when(
                 $ignoreReservationId !== null,
                 fn ($query) => $query->where('id', '!=', $ignoreReservationId),

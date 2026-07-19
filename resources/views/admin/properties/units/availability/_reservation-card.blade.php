@@ -1,4 +1,6 @@
-<div
+@if($day->reservation)
+
+													<div
 															class="relative flex items-start justify-between gap-2"
 														>
 
@@ -77,7 +79,18 @@
 																	Cancel Reservation
 																</button>
 															</form>
-
+															
 														</div>
 
 													</div>
+													@else
+														<a
+															href="{{ route('admin.units.reservations.create', [
+																'unit' => $unit,
+																'check_in' => $day->day->date->toDateString(),
+															]) }}"
+															class="block h-16 rounded hover:bg-slate-100 transition-colors"
+															title="Create reservation"
+														>
+														</a>
+												@endif

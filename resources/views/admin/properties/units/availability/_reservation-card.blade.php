@@ -62,8 +62,33 @@
 																Edit Reservation
 															</a>
 															
-															<div class="border-t border-slate-200"></div>
+															@if (
+																in_array(
+																	$day->reservation->status,
+																	[
+																		\Domain\Reservation\Enums\ReservationStatus::Reserved,
+																		\Domain\Reservation\Enums\ReservationStatus::Confirmed,
+																	],
+																	true,
+																)
+															)
+																<form
+																	method="POST"
+																	action="{{ route('admin.reservations.check-in', $day->reservation) }}"
+																>
+																	@csrf
 
+																	<button
+																		type="submit"
+																		class="block w-full px-3 py-2 text-left text-sm text-emerald-600 hover:bg-emerald-50"
+																	>
+																		Check In
+																	</button>
+																</form>
+															@endif
+															
+															<div class="border-t border-slate-200"></div>
+															
 															<form
 																method="POST"
 																action="{{ route('admin.reservations.destroy', $day->reservation) }}"

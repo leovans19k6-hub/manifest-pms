@@ -171,7 +171,9 @@ Route::middleware(['auth', 'organization'])->group(function (): void {
 		Route::post(
 			'/reservations/{reservation}/check-in',
 			[ReservationController::class, 'checkIn']
-		)->name('admin.reservations.check-in');
+		)
+			->middleware('permission:reservation.reservations.update')
+			->name('reservations.check-in');
 			
 		Route::view(
 			'/ui/calendar',

@@ -115,6 +115,16 @@ final class ReservationService
 			]);
 		}
 
+		if (
+			now()->startOfDay()->lt(
+				$reservation->check_in->startOfDay()
+			)
+		) {
+			throw ValidationException::withMessages([
+				'reservation' => 'Guest cannot check in before arrival date.',
+			]);
+		}
+
 		return DB::transaction(function () use ($reservation): Reservation {
 			$old = $reservation->getAttributes();
 

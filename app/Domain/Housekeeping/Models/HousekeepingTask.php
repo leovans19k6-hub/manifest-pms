@@ -16,6 +16,7 @@ use Domain\Shared\Traits\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\ValidationException;
 
 class HousekeepingTask extends Model
 {
@@ -85,5 +86,50 @@ class HousekeepingTask extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function assign(string $assigneeId): void
+    {
+        if ($this->status === HousekeepingTaskStatus::Completed) {
+            throw ValidationException::withMessages([
+                'task' => 'Completed housekeeping tasks cannot be assigned.',
+            ]);
+        }
+
+        if ($this->status === HousekeepingTaskStatus::InProgress) {
+            throw ValidationException::withMessages([
+                'task' => 'Housekeeping task already in progress.',
+            ]);
+        }
+
+        $this->assigned_to = $assigneeId;
+
+        if ($this->status === HousekeepingTaskStatus::Pending) {
+            $this->status = HousekeepingTaskStatus::Assigned;
+        }
+    }
+
+    public function start(): void
+    {
+        if ($this->status !== HousekeepingTaskStatus::Assigned) {
+            throw ValidationException::withMessages([
+                'task' => 'Only assigned housekeeping tasks can be started.',
+            ]);
+        }
+
+        $this->status = HousekeepingTaskStatus::InProgress;
+        $this->started_at = now();
+    }
+
+    public function complete(): void
+    {
+        if ($this->status !== HousekeepingTaskStatus::InProgress) {
+            throw ValidationException::withMessages([
+                'task' => 'Only in-progress housekeeping tasks can be completed.',
+            ]);
+        }
+
+        $this->status = HousekeepingTaskStatus::Completed;
+        $this->completed_at = now();
     }
 }

@@ -52,6 +52,7 @@ class ArchitectureFoundationTest extends TestCase
 		$this->assertSame([
 			'Availability',
 			'Foundation',
+			'Housekeeping',
 			'Inventory',
 			'Property',
 			'Reservation',

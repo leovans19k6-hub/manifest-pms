@@ -4,32 +4,22 @@ declare(strict_types=1);
 
 namespace Domain\Housekeeping\Application\Actions;
 
-use Domain\Housekeeping\Enums\HousekeepingTaskStatus;
+use Domain\Housekeeping\Application\Commands\StartHousekeepingTaskCommand;
 use Domain\Housekeeping\Models\HousekeepingTask;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Domain\Housekeeping\Services\HousekeepingService;
 
 final class StartHousekeepingTaskAction
 {
-    public function execute(string $taskId): HousekeepingTask
-    {
-        /** @var HousekeepingTask|null $task */
-        $task = HousekeepingTask::query()->find($taskId);
+    public function __construct(
+        private HousekeepingService $service,
+    ) {}
 
-        if ($task === null) {
-            throw new ModelNotFoundException('Housekeeping task not found.');
-        }
-
-        if ($task->status !== HousekeepingTaskStatus::Assigned) {
-            throw new \DomainException(
-                'Only assigned housekeeping tasks can be started.'
-            );
-        }
-
-        $task->update([
-            'status' => HousekeepingTaskStatus::InProgress,
-            'started_at' => now(),
-        ]);
-
-        return $task->refresh();
+    public function execute(
+        StartHousekeepingTaskCommand $command,
+    ): HousekeepingTask {
+        return $this->service->start(
+            $command->membership,
+            $command->task,
+        );
     }
 }

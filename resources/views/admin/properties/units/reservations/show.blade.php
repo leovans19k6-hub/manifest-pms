@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Reservation Details')
+@section('title', __('reservation.title.show'))
 
 @section('content')
 <div class="space-y-6">
@@ -23,7 +23,7 @@
 
         <x-card>
             <x-slot name="title">
-                Guest Information
+                {{ __('reservation.section.guest') }}
             </x-slot>
 
             <dl class="space-y-4">
@@ -63,7 +63,7 @@
 
         <x-card>
             <x-slot name="title">
-                Stay Information
+                {{ __('reservation.section.stay') }}
             </x-slot>
 
             <dl class="space-y-4">
@@ -113,7 +113,7 @@
 
         <x-card>
             <x-slot name="title">
-                Reservation
+                {{ __('reservation.section.reservation') }}
             </x-slot>
 
             <dl class="space-y-4">
@@ -155,7 +155,7 @@
 
     <x-card>
         <x-slot name="title">
-            Metadata
+            {{ __('reservation.section.metadata') }}
         </x-slot>
 
         <dl class="grid gap-6 md:grid-cols-2">
@@ -189,14 +189,14 @@
             href="{{ url()->previous() }}"
             class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
         >
-            Back
+            {{ __('reservation.button.back') }}
         </a>
 
         <a
             href="{{ route('admin.reservations.edit', $reservation) }}"
             class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
         >
-            Edit Reservation
+            {{ __('reservation.button.edit_reservation') }}
         </a>
 
     </div>

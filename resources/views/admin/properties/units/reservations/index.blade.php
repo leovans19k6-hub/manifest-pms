@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Reservations')
+@section('title', __('reservation.title.index'))
 @section('content')
     <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -18,14 +18,14 @@
                     href="{{ route('admin.properties.units.index', $unit->property) }}"
                     class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
                 >
-                    Back to Units
+                    {{ __('reservation.button.back_to_units') }}
                 </a>
 				
 				<a
 					href="{{ route('admin.units.availability.index', $unit) }}"
 					class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50"
 				>
-					Availability
+					{{ __('reservation.button.availability') }}
 				</a>
 
                 @if ($abilities['create'])
@@ -33,7 +33,7 @@
                         href="{{ route('admin.units.reservations.create', $unit) }}"
                         class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
                     >
-                        Create Reservation
+                        {{ __('reservation.button.create') }}
                     </a>
                 @endif
             </div>
@@ -47,8 +47,8 @@
 		@if ($reservations->isEmpty())
 
 			<x-empty-state
-				title="No reservations yet"
-				description="Create the first reservation for this unit."
+				title="{{ __('reservation.empty.title') }}"
+				description="{{ __('reservation.empty.description') }}"
 			>
 				@if ($abilities['create'])
 					<x-button
@@ -67,23 +67,23 @@
 					<tr class="hover:bg-slate-50 transition-colors">
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-							Reservation
+							{{ __('reservation.table.reservation') }}
 						</th>
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-							Guest
+							{{ __('reservation.table.guest') }}
 						</th>
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-							Stay
+							{{ __('reservation.table.stay') }}
 						</th>
 
 						<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-							Status
+							{{ __('reservation.table.status') }}
 						</th>
 
 						<th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-							Actions
+							{{ __('reservation.table.actions') }}
 						</th>
 
 					</tr>

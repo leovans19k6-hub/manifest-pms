@@ -17,12 +17,12 @@
 <div class="grid gap-6 md:grid-cols-2">
     <div>
 		<label for="code" class="block text-sm font-medium text-slate-700">
-			Reservation Code
+			{{ __('reservation.field.code') }}
 		</label>
 
 		<x-form.input
 			name="code"
-			label="Reservation Code"
+			label="__('reservation.field.code')"
 			maxlength="50"
 			required
 			:value="$reservation->code ?? ''"
@@ -35,12 +35,12 @@
 
 	<div>
 		<label for="guest_name" class="block text-sm font-medium text-slate-700">
-			Guest Name
+			{{ __('reservation.field.guest_name') }}
 		</label>
 
 		<x-form.input
 			name="guest_name"
-			label="Guest Name"
+			label="__('reservation.field.guest_name')"
 			required
 			:value="$reservation->guest_name ?? ''"
 		/>
@@ -52,12 +52,12 @@
 
 	<div>
 		<label for="guest_phone" class="block text-sm font-medium text-slate-700">
-			Phone
+			{{ __('reservation.field.guest_phone') }}
 		</label>
 
 		<x-form.input
 			name="guest_phone"
-			label="Phone"
+			label="__('reservation.field.guest_phone')"
 			:value="$reservation->guest_phone ?? ''"
 		/>
 
@@ -68,12 +68,12 @@
 
 	<div>
 		<label for="guest_email" class="block text-sm font-medium text-slate-700">
-			Email
+			{{ __('reservation.field.guest_email') }}
 		</label>
 
 		<x-form.input
 			name="guest_email"
-			label="Email"
+			label="__('reservation.field.guest_phone')"
 			type="email"
 			:value="$reservation->guest_email ?? ''"
 		/>
@@ -85,12 +85,12 @@
 
     <div>
 		<label for="status" class="block text-sm font-medium text-slate-700">
-			Status
+			{{ __('reservation.field.status') }}
 		</label>
 
 		<x-form.select
 			name="status"
-			label="Status"
+			label="__('reservation.field.status')"
 		>
 			@foreach ($statuses as $status)
 				<option
@@ -108,12 +108,12 @@
 	</div>
 	<div>
 		<label for="source" class="block text-sm font-medium text-slate-700">
-			Source
+			{{ __('reservation.field.source') }}
 		</label>
 
 		<x-form.select
 			name="source"
-			label="Source"
+			label="__('reservation.field.source')"
 		>
 			@foreach ($sources as $source)
 				<option
@@ -131,12 +131,12 @@
 	</div>
 	<div>
 		<label for="adults" class="block text-sm font-medium text-slate-700">
-			Adults
+			{{ __('reservation.field.adults') }}
 		</label>
 
 		<x-form.input
 			name="adults"
-			label="Adults"
+			label="__('reservation.field.adults')"
 			type="number"
 			min="1"
 			:value="$reservation->adults ?? 2"
@@ -148,12 +148,12 @@
 	</div>
 	<div>
 		<label for="children" class="block text-sm font-medium text-slate-700">
-			Children
+			{{ __('reservation.field.children') }}
 		</label>
 
 		<x-form.input
 			name="children"
-			label="Children"
+			label="__('reservation.field.children')"
 			type="number"
 			min="0"
 			:value="$reservation->children ?? 0"
@@ -165,12 +165,12 @@
 	</div>
 	<div>
 		<label for="check_in" class="block text-sm font-medium text-slate-700">
-			Check In
+			{{ __('reservation.field.check_in') }}
 		</label>
 
 		<x-form.input
 			name="check_in"
-			label="Check In"
+			label="__('reservation.field.check_in')"
 			type="date"
 			required
 			:value="old(
@@ -187,12 +187,12 @@
 	</div>
 	<div>
 		<label for="check_out" class="block text-sm font-medium text-slate-700">
-			Check Out
+			{{ __('reservation.field.check_out') }}
 		</label>
 
 		<x-form.input
 			name="check_out"
-			label="Check Out"
+			label="__('reservation.field.check_out')"
 			type="date"
 			required
 			:value="old(
@@ -209,12 +209,12 @@
 	</div>
 	<div class="md:col-span-2">
 		<label for="notes" class="block text-sm font-medium text-slate-700">
-			Notes
+			{{ __('reservation.field.notes') }}
 		</label>
 
 		<x-form.textarea
 			name="notes"
-			label="Notes"
+			label="__('reservation.field.notes')"
 			rows="5"
 			:value="$reservation->notes ?? ''"
 		/>
@@ -225,11 +225,11 @@
 	</div>
 	<div class="md:col-span-2">
 		<label class="block text-sm font-medium text-slate-700">
-			Metadata
+			{{ __('reservation.field.metadata') }}
 		</label>
 
 		<p class="mt-2 text-sm text-slate-500">
-			Metadata editing will be available in a future sprint.
+			{{ __('reservation.message.metadata_future') }}
 		</p>
 	</div>
 	<div class="md:col-span-2 flex items-center justify-end gap-3 border-t border-slate-200 pt-6">
@@ -238,14 +238,14 @@
 			href="{{ url()->previous() }}"
 			class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
 		>
-			Cancel
+			{{ __('reservation.button.cancel') }}
 		</a>
 
 		<button
 			type="submit"
 			class="rounded-lg bg-slate-900 px-5 py-2 text-sm font-medium text-white"
 		>
-			Save Reservation
+			{{ __('reservation.button.save') }}
 		</button>
 	</div>
 </div>
